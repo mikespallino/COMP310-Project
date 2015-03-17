@@ -2,6 +2,7 @@
 This project will entail creating a compiler for the assembly instruction set of the simple 16-bit cpu Professor Joey Lawrance gave us in COMP278.
 
 ## The Grammar
+	stats           : stat stat* EOF;
 	stat            : busControlInstr | arithmaticInstr;
 	busControlInstr : instr reg mmm | instr reg;
 	arithmaticInstr : instr reg reg reg;
