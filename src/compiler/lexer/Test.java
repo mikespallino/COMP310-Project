@@ -5,10 +5,20 @@ import compiler.parser.BacktrackParser;
 public class Test {
 
 	public static void main(String[] args) {
-		String input = "ADD R2, R3, R4 \n"
-					 + "STOR R5, 563763 \n"
-					 + "JZE R4, 3";
-		ListLexer lexer = new ListLexer(input);
+		//Works!
+		String input = "ADD R0, R1, R2 \n"
+				 + "STOR R3, 563763 \n"
+				 + "JZE R4, 563763 \n";
+		//Doesn't work, duh!
+		String input2 = "ADD R0, R1, R2 \n"
+					 + "STOR R3, 563763 \n"
+					 + "JZE R4, 563763 \n"
+					 + "OR";
+		//Doesn't work, duh (x2)!
+		String input3 = "ADD R0, R1, R2, R7 \n"
+					 + "STOR R3, 563763 \n"
+					 + "JZE R4, 563763 \n";
+		ListLexer lexer = new ListLexer(input3);
 		BacktrackParser parser = new BacktrackParser(lexer);
 		try {
 			parser.stats();

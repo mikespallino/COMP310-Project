@@ -9,72 +9,6 @@ public class BacktrackParser extends Parser {
 		super(input);
 	}
 	
-//	public void parse() throws Exception {
-//		while(lookToken(1).type != ListLexer.EOF_TYPE) {
-//			instruction();
-//		}
-//	}
-//	
-//	public void instruction() throws Exception {
-//		if(isArithmeticInstruction() && lookAhead(2) == ListLexer.REGISTER && lookAhead(3) == ListLexer.COMMA && lookAhead(4) == ListLexer.REGISTER && lookAhead(5) == ListLexer.COMMA && lookAhead(6) == ListLexer.REGISTER) {
-//			match(lookAhead(1));
-//			match(ListLexer.REGISTER);
-//			match(ListLexer.COMMA);
-//			match(ListLexer.REGISTER);
-//			match(ListLexer.COMMA);
-//			match(ListLexer.REGISTER);
-//		} else {
-//			throw new Exception("No suitable instruction match. Found: " + lookAhead(1));
-//		}
-//		if (isBusControlInstruction() && lookAhead(2) == ListLexer.REGISTER && lookAhead(3) == ListLexer.COMMA && lookAhead(4) == ListLexer.IMMD) {
-//			match(lookAhead(1));
-//			match(ListLexer.REGISTER);
-//			match(ListLexer.COMMA);
-//			match(ListLexer.IMMD);
-//		} else if(isBusControlInstruction() && lookAhead(2) == ListLexer.REGISTER) {
-//			match(lookAhead(1));
-//			match(ListLexer.REGISTER);
-//		} else {
-//			throw new Exception("No suitable instruction match. Found: " + lookAhead(1));
-//		}
-//		
-//		if(lookAhead(1) == ListLexer.NWLN) {
-//			match(ListLexer.NWLN);
-//		} else {
-//			throw new Exception("No suitable instruction match. Found: " + lookAhead(1));
-//		}
-//	}
-//	
-//	private boolean isArithmeticInstruction() {
-//		switch(lookAhead(1)) {
-//			case ListLexer.ADD:
-//			case ListLexer.SUB:
-//			case ListLexer.MUL:
-//			case ListLexer.DIV:
-//			case ListLexer.AND:
-//			case ListLexer.OR:
-//			case ListLexer.XNOR:
-//				return true;
-//			default:
-//				return false;
-//		}
-//	}
-//	
-//	private boolean isBusControlInstruction() {
-//		switch(lookAhead(1)) {
-//			case ListLexer.MOV:
-//			case ListLexer.JZE:
-//			case ListLexer.JZN:
-//			case ListLexer.JZG:
-//			case ListLexer.JZL:
-//			case ListLexer.LOAD:
-//			case ListLexer.STOR:
-//				return true;
-//			default:
-//				return false;
-//		}
-//	}
-	
 	public void stats() throws MismatchedTokenException {
 		while(lookAhead(1) != ListLexer.EOF_TYPE) {
 			stat();
@@ -85,18 +19,18 @@ public class BacktrackParser extends Parser {
 	public void stat() throws MismatchedTokenException {
 		if(speculateBusControlInstr()) {
 			busControlInstr();
-		} else if(speculateArithmaticInstr()) {
-			arithmaticInstr();
+		} else if(speculatearithmeticInstr()) {
+			arithmeticInstr();
 		} else {
-			throw new MismatchedTokenException("Expecting Bus Control or Arithmatic Instruction; Found " + lookToken(1));
+			throw new MismatchedTokenException("Expecting Bus Control or arithmetic Instruction; Found " + lookToken(1));
 		}
 	}
 	
-	private boolean speculateArithmaticInstr() {
+	private boolean speculatearithmeticInstr() {
 		boolean success = true;
 		mark();
 		try {
-			arithmaticInstr();
+			arithmeticInstr();
 		} catch (MismatchedTokenException e) {
 			success = false;
 		}
@@ -121,9 +55,23 @@ public class BacktrackParser extends Parser {
 			instr();
 			reg();
 			mmm();
+			if(lookAhead(1) == ListLexer.NWLN) {
+				match(ListLexer.NWLN);
+			} else if(lookAhead(1) == ListLexer.EOF_TYPE) {
+				match(ListLexer.EOF_TYPE);
+			} else {
+				throw new MismatchedTokenException("Expecting Bus Control Instruction; Found " + lookToken(1) + " " + lookToken(2) + " " + lookToken(3));
+			}
 		} else if(speculateBusControlInstrTwoArg()) {
 			instr();
 			reg();
+			if(lookAhead(1) == ListLexer.NWLN) {
+				match(ListLexer.NWLN);
+			} else if(lookAhead(1) == ListLexer.EOF_TYPE) {
+				match(ListLexer.EOF_TYPE);
+			} else {
+				throw new MismatchedTokenException("Expecting Bus Control Instruction; Found " + lookToken(1) + " " + lookToken(2) + " " + lookToken(3));
+			}
 		} else {
 			throw new MismatchedTokenException("Expecting Bus Control Instruction; Found " + lookToken(1) + " " + lookToken(2));
 		}
@@ -136,6 +84,13 @@ public class BacktrackParser extends Parser {
 			instr();
 			reg();
 			mmm();
+			if(lookAhead(1) == ListLexer.NWLN) {
+				match(ListLexer.NWLN);
+			} else if(lookAhead(1) == ListLexer.EOF_TYPE) {
+				match(ListLexer.EOF_TYPE);
+			} else {
+				throw new MismatchedTokenException("Expecting Bus Control Instruction; Found " + lookToken(1) + " " + lookToken(2) + " " + lookToken(3) + " " + lookAhead(4));
+			}
 		} catch (MismatchedTokenException e) {
 			success = false;
 		}
@@ -149,6 +104,13 @@ public class BacktrackParser extends Parser {
 		try {
 			instr();
 			reg();
+			if(lookAhead(1) == ListLexer.NWLN) {
+				match(ListLexer.NWLN);
+			} else if(lookAhead(1) == ListLexer.EOF_TYPE) {
+				match(ListLexer.EOF_TYPE);
+			} else {
+				throw new MismatchedTokenException("Expecting Bus Control Instruction; Found " + lookToken(1) + " " + lookToken(2) + " " + lookToken(3));
+			}
 		} catch (MismatchedTokenException e) {
 			success = false;
 		}
@@ -156,32 +118,62 @@ public class BacktrackParser extends Parser {
 		return success;
 	}
 	
-	public void arithmaticInstr() throws MismatchedTokenException {
+	public void arithmeticInstr() throws MismatchedTokenException {
 		instr();
 		reg();
 		reg();
 		reg();
+		if(lookAhead(1) == ListLexer.NWLN) {
+			match(ListLexer.NWLN);
+		} else if(lookAhead(1) == ListLexer.EOF_TYPE) {
+			match(ListLexer.EOF_TYPE);
+		} else {
+			throw new MismatchedTokenException("Expecting arithmetic Instruction; Found " + lookToken(1) + " " + lookToken(2) + " " + lookToken(3) + " " + lookAhead(4));
+		}
 	}
 	
 	public void mmm() throws MismatchedTokenException {
-		if(lookAhead(1) == ListLexer.IMMD && lookAhead(2) == ListLexer.NWLN) {
+		if(lookAhead(1) == ListLexer.IMMD) {
 			match(ListLexer.IMMD);
-			match(ListLexer.NWLN);
 		} else {
 			throw new MismatchedTokenException("Expecting immediate value; Found " + lookToken(1) + " " + lookToken(2));
 		}
 	}
 	
 	public void reg() throws MismatchedTokenException {
-		if(lookAhead(1) == ListLexer.REGISTER && lookAhead(2) == ListLexer.COMMA) {
+		if(speculateRegisterComma()) {
 			match(ListLexer.REGISTER);
 			match(ListLexer.COMMA);
-		} else if(lookAhead(1) == ListLexer.REGISTER && lookAhead(2) == ListLexer.NWLN) {
+		} else if(speculateRegister()) {
 			match(ListLexer.REGISTER);
-			match(ListLexer.NWLN);
 		} else {
 			throw new MismatchedTokenException("Expecting Register definition; Found " + lookToken(1) + " " + lookToken(2));
 		}
+	}
+	
+	public boolean speculateRegisterComma() {
+		boolean success = true;
+		mark();
+		try {
+			match(ListLexer.REGISTER);
+			match(ListLexer.COMMA);
+		} catch (MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
+	}
+	
+	public boolean speculateRegister() {
+		boolean success = true;
+		mark();
+		try {
+			match(ListLexer.REGISTER);
+		} catch (MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
 	}
 	
 	public void instr() throws MismatchedTokenException {
