@@ -1,5 +1,10 @@
 package compiler.lexer;
 
+/**
+ * The Token class pairs the type of token with the text 
+ * associated with it.
+ * @author Mike
+ */
 public class Token {
 
 	public int type;
@@ -11,7 +16,7 @@ public class Token {
 	}
 	
 	public String toString() {
-		String tname = ListLexer.tokenNames[type];
+		String tname = ASMLexer.tokenNames[type];
 		return "<'" + text + "', " + tname + ">";
 	}
 }

@@ -1,6 +1,10 @@
 package compiler.lexer;
 
-public class ListLexer extends Lexer {
+/**
+ * ASMLexer is an lexer that tokenizes a string of input data.
+ * @author Mike
+ */
+public class ASMLexer extends Lexer {
 	
 	public static final int REGISTER = 2;
 	public static final int INSTRUCTION = 3;
@@ -9,7 +13,7 @@ public class ListLexer extends Lexer {
 	public static final int NWLN     = 6;
 	public static String[] tokenNames = {"n/a", "<EOF>", "REGISTER", "INSTRUCTION", "COMMA", "IMMD", "NWLN"};
 	
-	public ListLexer(String input) {
+	public ASMLexer(String input) {
 		super(input);
 	}
 	
@@ -56,6 +60,10 @@ public class ListLexer extends Lexer {
 		return new Token(EOF_TYPE, "<EOF>");
 	}
 	
+	/**
+	 * While the characters are numbers create an immediate value token.
+	 * @return an immediate value token
+	 */
 	private Token IMMEDIATE_VALUE() {
 		StringBuilder buf = new StringBuilder();
 		int count = 0;
@@ -70,6 +78,10 @@ public class ListLexer extends Lexer {
 		return new Token(IMMD, buf.toString());
 	}
 
+	/**
+	 * While the characters are letters create an instruction token.
+	 * @return instruction token.
+	 */
 	private Token WORD() {
 		StringBuilder buf = new StringBuilder();
 		do {
@@ -97,6 +109,10 @@ public class ListLexer extends Lexer {
 		}
 	}
 	
+	/**
+	 * While the character following an R is a number create a register token.
+	 * @returna register token.
+	 */
 	private Token REGISTER() {
 		StringBuilder buf = new StringBuilder();
 		do {
@@ -105,6 +121,9 @@ public class ListLexer extends Lexer {
 		} while (isNumber());
 		return new Token(REGISTER, buf.toString());
 	}
+	/**
+	 * While the character is whitespace, throw it out.
+	 */
 	
 	private void WS() {
 		while(getC() == ' ' || getC() == '\t' || getC() == '\r') {

@@ -1,6 +1,6 @@
 package compiler.lexer;
 
-import compiler.parser.BacktrackParser;
+import compiler.parser.ASMBacktrackParser;
 
 public class Test {
 
@@ -18,8 +18,8 @@ public class Test {
 		String input3 = "ADD R0, R1, R2, R7 \n"
 					 + "STOR R3, 563763 \n"
 					 + "JZE R4, 563763 \n";
-		ListLexer lexer = new ListLexer(input3);
-		BacktrackParser parser = new BacktrackParser(lexer);
+		ASMLexer lexer = new ASMLexer(input3);
+		ASMBacktrackParser parser = new ASMBacktrackParser(lexer);
 		try {
 			parser.stats();
 		} catch (Exception e) {
