@@ -1,7 +1,10 @@
 package compiler.parser;
 
+import java.util.List;
+
 import compiler.lexer.Lexer;
 import compiler.lexer.ListLexer;
+import compiler.lexer.Token;
 
 public class BacktrackParser extends Parser {
 
@@ -9,11 +12,12 @@ public class BacktrackParser extends Parser {
 		super(input);
 	}
 	
-	public void stats() throws MismatchedTokenException {
+	public List<Token> stats() throws MismatchedTokenException {
 		while(lookAhead(1) != ListLexer.EOF_TYPE) {
 			stat();
 		}
 		match(ListLexer.EOF_TYPE);
+		return parsedTokens;
 	}
 	
 	public void stat() throws MismatchedTokenException {

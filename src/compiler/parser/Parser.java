@@ -11,12 +11,14 @@ public class Parser {
 	Lexer input;
 	List<Integer> markers;
 	List<Token> lookahead;
+	List<Token> parsedTokens;
 	int p = 0;
 	
 	public Parser(Lexer input) {
 		this.input = input;
 		markers = new ArrayList<Integer>();
 		lookahead = new ArrayList<Token>();
+		parsedTokens = new ArrayList<Token>();
 	}
 	
 	public Token lookToken(int i) {
@@ -30,6 +32,7 @@ public class Parser {
 	
 	public void match(int target) throws MismatchedTokenException {
 		if(lookAhead(1) == target) {
+			parsedTokens.add(lookToken(1));
 			consume();
 		} else {
 			throw new MismatchedTokenException("Expecting " + input.getTokenName(target) + "; Found " + lookToken(1));
