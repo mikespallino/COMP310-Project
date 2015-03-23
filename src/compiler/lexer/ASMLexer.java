@@ -21,17 +21,11 @@ public class ASMLexer extends Lexer {
 		return tokenNames[index];
 	}
 	
-	boolean isLetter() {
-		return (getC() >= 'a' && getC() <= 'z') || (getC() >= 'A' && getC() <= 'Z') && getC() != 'r' && getC() != 'R';
-	}
-	boolean isNumber() {
-		return (getC() >= '0' && getC() <= '9');
-	}
-	
 	boolean isR() {
 		return (getC() == 'r' || getC() == 'R');
 	}
 	
+	@Override
 	public Token nextToken() {
 		while(getC() != EOF) {
 			switch(getC()) {
@@ -42,10 +36,10 @@ public class ASMLexer extends Lexer {
 				continue;
 			case '\n':
 				consume();
-				return new Token(NWLN, "\n");
+				return new Token(NWLN, "\n", this);
 			case ',':
 				consume();
-				return new Token(COMMA, ",");
+				return new Token(COMMA, ",", this);
 			default:
 				if(isLetter()) {
 					return WORD();
@@ -57,7 +51,7 @@ public class ASMLexer extends Lexer {
 				throw new Error("Invalid character: " + getC());
 			}
 		}
-		return new Token(EOF_TYPE, "<EOF>");
+		return new Token(EOF_TYPE, "<EOF>", this);
 	}
 	
 	/**
@@ -75,7 +69,7 @@ public class ASMLexer extends Lexer {
 				throw new Error("Immediate values can only be 8 bits. Value: " +  buf.toString() + getC());
 			}
 		} while (isNumber());
-		return new Token(IMMD, buf.toString());
+		return new Token(IMMD, buf.toString(), this);
 	}
 
 	/**
@@ -103,7 +97,7 @@ public class ASMLexer extends Lexer {
 			case "JZL":
 			case "LOAD":
 			case "STOR":
-				return new Token(INSTRUCTION, buf.toString());
+				return new Token(INSTRUCTION, buf.toString(), this);
 			default:
 				throw new Error("Invalid instruction: " + buf.toString());
 		}
@@ -119,12 +113,12 @@ public class ASMLexer extends Lexer {
 			buf.append(getC());
 			consume();
 		} while (isNumber());
-		return new Token(REGISTER, buf.toString());
+		return new Token(REGISTER, buf.toString(), this);
 	}
+	
 	/**
 	 * While the character is whitespace, throw it out.
 	 */
-	
 	private void WS() {
 		while(getC() == ' ' || getC() == '\t' || getC() == '\r') {
 				consume();

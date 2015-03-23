@@ -55,4 +55,12 @@ public abstract class Lexer {
 	public void setC(char c) {
 		this.c = c;
 	}
+	
+	boolean isLetter() {
+		return (getC() >= 'a' && getC() <= 'z') || (getC() >= 'A' && getC() <= 'Z') && getC() != 'r' && getC() != 'R';
+	}
+	
+	boolean isNumber() {
+		return (getC() >= '0' && getC() <= '9');
+	}
 }
