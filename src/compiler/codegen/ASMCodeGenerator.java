@@ -39,9 +39,9 @@ public class ASMCodeGenerator implements CodeGenerator {
 					switch(t.text) {
 						case "ADD":
 							// Since this instruction token is an ADD instruction
-							// The hexadecimal conversion for that is 1. Append 
+							// The hexadecimal conversion for that is 0. Append 
 							// that to the output and we're done!
-							output += "1";
+							output += "0";
 							break;
 						case "SUB":
 							// Implement the rest of these! the hex conversions can
