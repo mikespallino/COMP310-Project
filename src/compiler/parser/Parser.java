@@ -61,6 +61,25 @@ public class Parser {
 	}
 	
 	/**
+	 * match(int target1, int target2) will try to match either of the
+	 * specified token with the next in the stream.
+	 * @param target1 - a possible token type you're trying to match
+	 * @param target2 - another possible token type you're trying to match
+	 * @throws MismatchedTokenException
+	 */
+	public void match(int target1, int target2) throws MismatchedTokenException {
+		if(lookAhead(1) == target1) {
+			parsedTokens.add(lookToken(1));
+			consume();
+		} else if(lookAhead(1) == target2) {
+			parsedTokens.add(lookToken(1));
+			consume();
+		} else {
+			throw new MismatchedTokenException("Expecting either " + input.getTokenName(target1) + " or " + input.getTokenName(target2) + "; Found " + lookToken(1));
+		}
+	}
+	
+	/**
 	 * sync(int i) increases the lookahead buffer size.
 	 * @param i
 	 */
