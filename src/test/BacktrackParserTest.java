@@ -5,8 +5,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import compiler.lexer.Lexer;
-import compiler.lexer.ListLexer;
-import compiler.parser.BacktrackParser;
+import compiler.lexer.ASMLexer;
+import compiler.parser.ASMBacktrackParser;
 import compiler.parser.MismatchedTokenException;
 import compiler.parser.Parser;
 
@@ -37,35 +37,35 @@ public class BacktrackParserTest {
 						+ "STOR R3 \n"
 						+ "JZE R4, 563763 \n"; 
 		
-		lexer1 = new ListLexer(input1);
-		lexer2 = new ListLexer(input2);
-		lexer3 = new ListLexer(input3);
-		lexer4 = new ListLexer(input4);
+		lexer1 = new ASMLexer(input1);
+		lexer2 = new ASMLexer(input2);
+		lexer3 = new ASMLexer(input3);
+		lexer4 = new ASMLexer(input4);
 		
-		parser = new BacktrackParser(lexer1);
+		parser = new ASMBacktrackParser(lexer1);
 		try {
-			((BacktrackParser) parser).stats();
+			((ASMBacktrackParser) parser).stats();
 		} catch (MismatchedTokenException e) {
 			assertTrue(e == null);
 		}
 		
-		parser = new BacktrackParser(lexer2);
+		parser = new ASMBacktrackParser(lexer2);
 		try {
-			((BacktrackParser) parser).stats();
+			((ASMBacktrackParser) parser).stats();
 		} catch (MismatchedTokenException e) {
 			assertTrue(e != null);
 		}
 		
-		parser = new BacktrackParser(lexer3);
+		parser = new ASMBacktrackParser(lexer3);
 		try {
-			((BacktrackParser) parser).stats();
+			((ASMBacktrackParser) parser).stats();
 		} catch (MismatchedTokenException e) {
 			assertTrue(e != null);
 		}
 		
-		parser = new BacktrackParser(lexer4);
+		parser = new ASMBacktrackParser(lexer4);
 		try {
-			((BacktrackParser) parser).stats();
+			((ASMBacktrackParser) parser).stats();
 		} catch (MismatchedTokenException e) {
 			assertTrue(e == null);
 		}

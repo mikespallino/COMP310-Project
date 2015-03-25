@@ -1,12 +1,16 @@
 package compiler.lexer;
 
-
+/**
+ * Generic abstract Lexer class. It keeps track of where we 
+ * are in the input String stream. 
+ * @author Mike
+ */
 public abstract class Lexer {
 
 	public static final char EOF = (char) -1;
 	public static final int EOF_TYPE = 1;
-	String input;
-	int pointer = 0;
+	protected String input;
+	private int pointer = 0;
 	private char c;
 	
 	public Lexer(String input) {
@@ -14,6 +18,11 @@ public abstract class Lexer {
 		setC(input.charAt(pointer));
 	}
 	
+	/**
+	 * consume() increments the position in the string stream.
+	 * When it gets to the end it will put an end of file character
+	 * on to the end of the stream.
+	 */
 	public void consume() {
 		pointer++;
 		if(pointer >= input.length()) {
@@ -23,6 +32,11 @@ public abstract class Lexer {
 		}
 	}
 	
+	/**
+	 * match(char target) will match the current character with
+	 * a target character and consumes it.
+	 * @param target
+	 */
 	public void match(char target) {
 		if(getC() == target) {
 			consume();
@@ -40,5 +54,13 @@ public abstract class Lexer {
 
 	public void setC(char c) {
 		this.c = c;
+	}
+	
+	boolean isLetter() {
+		return (getC() >= 'a' && getC() <= 'z') || (getC() >= 'A' && getC() <= 'Z') && getC() != 'r' && getC() != 'R';
+	}
+	
+	boolean isNumber() {
+		return (getC() >= '0' && getC() <= '9');
 	}
 }
