@@ -18,9 +18,10 @@ We will first go about creating a backtracking parser and lexer for the grammar 
 	stat				: assign | comp | while | for | if;
 	assign				: ((DATATYPE NAME EQUALS (NAME | VALUE)) | (DATATYPE NAME EQUALS (NAME | VALUE) OP (NAME | VALUE))) SEMI;
 	comp				: ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE) SEMI) | ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE));
-	while				: WHILE OPAREN stat CPAREN OBRACK (stat)* CBRACK;
-	for					: FOR OPAREN stat stat stat CPAREN OBRACK (stat)* CBRACK;
-	if					: IF OPAREN stat CPAREN OBRACK (stat)* CBRACK;
+	while				: WHILE OPAREN comp CPAREN OBRACK (stat)* CBRACK;
+	for					: FOR OPAREN stat comp stat CPAREN OBRACK (stat)* CBRACK;
+	if					: IF OPAREN comp CPAREN OBRACK (stat)* CBRACK else;
+	else				: ELSE OBRACK (stat)* CBRACK;
 
 ## 16-BIT CPU ISA (reference)
 	Reverse column order
