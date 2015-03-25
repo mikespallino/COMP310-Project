@@ -17,7 +17,7 @@ We will first go about creating a backtracking parser and lexer for the grammar 
 	stats				: stat* EOF;
 	stat				: assign | comp | while | for | if;
 	assign				: ((DATATYPE NAME EQUALS (NAME | VALUE)) | (DATATYPE NAME EQUALS (NAME | VALUE) OP (NAME | VALUE))) SEMI;
-	comp				: ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE) SEMI) | ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE));
+	comp				: ((NAME | VALUE) (EQUALS EQUALS | LESS | GREATER | LESS EQUAL | GREATER LESS) (NAME | VALUE) SEMI) | ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE));
 	while				: WHILE OPAREN comp CPAREN OBRACK (stat)* CBRACK;
 	for					: FOR OPAREN stat comp stat CPAREN OBRACK (stat)* CBRACK;
 	if					: IF OPAREN comp CPAREN OBRACK (stat)* CBRACK else;
