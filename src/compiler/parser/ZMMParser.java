@@ -274,17 +274,59 @@ public class ZMMParser extends Parser {
 		}
 		match(ZMMLexer.CBRACK);
 	}
-	
-	public void forS() {
-		// TODO: Zach implement this!
+
+    /**
+     * for loop
+     * creates variable, checks condition, and modifies variable
+     * everything within for loop is executed via java while loop
+     * @throws MismatchedTokenException
+     * @author Zach
+     */
+	public void forS() throws MismatchedTokenException{
+        match(ZMMLexer.FOR);
+        match(ZMMLexer.OPAREN);
+        stat();
+        comp();
+        stat();
+        match(ZMMLexer.CPAREN);
+        match(ZMMLexer.OBRACK);
+        while(lookAhead(1) != ZMMLexer.CBRACK) {
+            stat();
+        }
+        match(ZMMLexer.CBRACK);
 	}
-	
-	public void ifS() {
-		// TODO: Zach implement this!
+
+    /**
+     * if statement
+     * checks one AND ONLY one condition
+     * everything in if statement is executed with while loop
+     * @throws MismatchedTokenException
+     * @author Zach
+     */
+	public void ifS() throws MismatchedTokenException{
+        match(ZMMLexer.IF);
+        match(ZMMLexer.OPAREN);
+        comp();
+        match(ZMMLexer.CPAREN);
+        match(ZMMLexer.OBRACK);
+        while(lookAhead(1) != ZMMLexer.CBRACK) {
+            stat();
+        }
+        match(ZMMLexer.CBRACK);
 	}
-	
-	public void elseS() {
-		// TODO: Zach implement this!
+
+    /**
+     * else statement
+     * everything in else statement is executed through a while loop.
+     * @throws MismatchedTokenException
+     * @author Zach
+     */
+	public void elseS() throws MismatchedTokenException{
+        match(ZMMLexer.ELSE);
+        match(ZMMLexer.OBRACK);
+        while(lookAhead(1) != ZMMLexer.CBRACK) {
+            stat();
+        }
+        match(ZMMLexer.CBRACK);
 	}
-	
 }
