@@ -54,23 +54,42 @@ public class ZMMParser extends Parser {
 		} else if(speculateIfS()) {
 			ifS();
 		} else {
-			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1));
+			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1) + " " + lookToken(2));
 		}
 	}
-	
-	private boolean speculateElseS() {
-		// TODO: Zach implement this!
-		return false;
-	}
 
+	/**
+	 * Speculate if this is an if statement
+	 * @return if the token stream represents an if statement.
+	 * @author Mike
+	 */
 	private boolean speculateIfS() {
-		// TODO: Zach implement this!
-		return false;
+		boolean success = true;
+		mark();
+		try {
+			ifS();
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
 	}
 
+	/**
+	 * Speculate if this is a for statement
+	 * @return if the token stream represents a for statement.
+	 * @author Mike
+	 */
 	private boolean speculateForS() {
-		// TODO: Zach implement this!
-		return false;
+		boolean success = true;
+		mark();
+		try {
+			forS();
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
 	}
 
 	/**
@@ -90,14 +109,38 @@ public class ZMMParser extends Parser {
 		return success;
 	}
 
+	/**
+	 * Speculate if this is a comparison statement
+	 * @return if the token stream represents a comparison statement.
+	 * @author Mike
+	 */
 	private boolean speculateComp() {
-		// TODO: Zach implement this!
-		return false;
+		boolean success = true;
+		mark();
+		try {
+			comp();
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
 	}
 
+	/**
+	 * Speculate if this is an assignment statement
+	 * @return if the token stream represents an assignment statement.
+	 * @author Mike
+	 */
 	private boolean speculateAssign() {
-		// TODO: Zach implement this!
-		return false;
+		boolean success = true;
+		mark();
+		try {
+			assign();
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
 	}
 
 	/**
@@ -128,11 +171,11 @@ public class ZMMParser extends Parser {
 	}
 	
 	/**
-	 * Speculates an operator assignment statement. (int x = y + 5;)
-	 * @return if this token stream is an operator assignment statement.
+	 * Speculates an assignment statement. (int x = 5;)
+	 * @return if this token stream is an assignment statement.
 	 * @author Mike
 	 */
-	private boolean speculateOperatorAssign() {
+	private boolean speculateRegularAssign() {
 		boolean success = true;
 		mark();
 		try {
@@ -144,15 +187,16 @@ public class ZMMParser extends Parser {
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
+		release();
 		return success;
 	}
 
 	/**
-	 * Speculates an assignment statement. (int x = 5;)
-	 * @return if this token stream is an assignment statement.
+	 * Speculates an operator assignment statement. (int x = y + 5;)
+	 * @return if this token stream is an operator assignment statement.
 	 * @author Mike
 	 */
-	private boolean speculateRegularAssign() {
+	private boolean speculateOperatorAssign() {
 		boolean success = true;
 		mark();
 		try {
@@ -166,6 +210,7 @@ public class ZMMParser extends Parser {
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
+		release();
 		return success;
 	}
 
@@ -182,21 +227,41 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			if(speculateSemi())
+				match(ZMMLexer.SEMI);
 		} else if (speculateValDif()) {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.LESS, ZMMLexer.GREATER);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			if(speculateSemi())
+				match(ZMMLexer.SEMI);
 		} else if(speculateValDifEq()) {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.LESS, ZMMLexer.GREATER);
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			if(speculateSemi())
+				match(ZMMLexer.SEMI);
 		} else {
 			throw new MismatchedTokenException("Expecting a comparison; Found " + lookToken(1));
 		}
+	}
+	
+	/**
+	 * Speculates the next token is a semi colon token.
+	 * @return if the next token in the stream is a semi colon
+	 * @author Mike
+	 */
+	private boolean speculateSemi() {
+		boolean success = true;
+		mark();
+		try {
+			match(ZMMLexer.SEMI);
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
 	}
 	
 	/**
@@ -216,6 +281,7 @@ public class ZMMParser extends Parser {
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
+		release();
 		return success;
 	}
 	
@@ -235,6 +301,7 @@ public class ZMMParser extends Parser {
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
+		release();
 		return success;
 	}
 	
@@ -255,6 +322,7 @@ public class ZMMParser extends Parser {
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
+		release();
 		return success;
 	}
 
@@ -266,7 +334,7 @@ public class ZMMParser extends Parser {
 	public void whileS() throws MismatchedTokenException {
 		match(ZMMLexer.WHILE);
 		match(ZMMLexer.OPAREN);
-		stat();
+		comp();
 		match(ZMMLexer.CPAREN);
 		match(ZMMLexer.OBRACK);
 		while(lookAhead(1) != ZMMLexer.CBRACK) {
@@ -313,6 +381,7 @@ public class ZMMParser extends Parser {
             stat();
         }
         match(ZMMLexer.CBRACK);
+        elseS();
 	}
 
     /**
