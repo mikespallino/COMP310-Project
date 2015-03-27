@@ -58,38 +58,57 @@ public class ZMMParser extends Parser {
 		}
 	}
 
-	/**
-	 * Speculate if this is an if statement
-	 * @return if the token stream represents an if statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates elseS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
+	private boolean speculateElseS() {
+        boolean success = true;
+        mark();
+        try {
+            elseS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
+	}
+    /**
+     * Speculates ifS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateIfS() {
 		boolean success = true;
-		mark();
-		try {
-			ifS();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+        mark();
+        try {
+            ifS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
-	/**
-	 * Speculate if this is a for statement
-	 * @return if the token stream represents a for statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates forS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateForS() {
 		boolean success = true;
-		mark();
-		try {
-			forS();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+        mark();
+        try {
+            forS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
 	/**
@@ -109,38 +128,41 @@ public class ZMMParser extends Parser {
 		return success;
 	}
 
-	/**
-	 * Speculate if this is a comparison statement
-	 * @return if the token stream represents a comparison statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates comp
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateComp() {
 		boolean success = true;
-		mark();
-		try {
-			comp();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+        mark();
+        try {
+            comp();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
-	/**
-	 * Speculate if this is an assignment statement
-	 * @return if the token stream represents an assignment statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates assign
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateAssign() {
-		boolean success = true;
-		mark();
-		try {
-			assign();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+		// TODO: Zach implement this!boolean success = true;
+        boolean success = true;
+        mark();
+        try {
+            assign();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
 	/**
