@@ -35,68 +35,81 @@ public class ZMMParser extends Parser {
 		return parsedTokens;
 	}
 	
-	/**
-	 * stat() is the generic statement in the grammar.
-	 * It matches assignment, comparision, while, for,
-	 * and if statements.
-	 * @throws MismatchedTokenException
-	 * @author Mike
-	 */
 	public void stat() throws MismatchedTokenException {
 		if(speculateAssign()) {
-			assign();
+			
 		} else if(speculateComp()) {
-			comp();
+			
 		} else if(speculateWhileS()) {
 			whileS();
 		} else if(speculateForS()) {
 			forS();
 		} else if(speculateIfS()) {
 			ifS();
+		} else if(speculateElseS()) {
+			elseS();
 		} else {
-			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1) + " " + lookToken(2));
+			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1));
 		}
 	}
 
-	/**
-	 * Speculate if this is an if statement
-	 * @return if the token stream represents an if statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates elseS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
+	private boolean speculateElseS() {
+		// TODO: Zach implement this!
+        boolean success = true;
+        mark();
+        try {
+            elseS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
+	}
+
+    /**
+     * Speculates ifS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateIfS() {
-		boolean success = true;
-		mark();
-		try {
-			ifS();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+		// TODO: Zach implement this!
+        boolean success = true;
+        mark();
+        try {
+            ifS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
-	/**
-	 * Speculate if this is a for statement
-	 * @return if the token stream represents a for statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates forS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateForS() {
-		boolean success = true;
-		mark();
-		try {
-			forS();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+		// TODO: Zach implement this!
+        boolean success = true;
+        mark();
+        try {
+            forS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
-	/**
-	 * Speculate if this is a while statement
-	 * @return if the token stream represents a while statement.
-	 * @author Mike
-	 */
 	private boolean speculateWhileS() {
 		boolean success = true;
 		mark();
@@ -109,232 +122,103 @@ public class ZMMParser extends Parser {
 		return success;
 	}
 
-	/**
-	 * Speculate if this is a comparison statement
-	 * @return if the token stream represents a comparison statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates comp
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateComp() {
-		boolean success = true;
-		mark();
-		try {
-			comp();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+		// TODO: Zach implement this!
+        boolean success = true;
+        mark();
+        try {
+            comp();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
-	/**
-	 * Speculate if this is an assignment statement
-	 * @return if the token stream represents an assignment statement.
-	 * @author Mike
-	 */
+    /**
+     * Speculates assign
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateAssign() {
-		boolean success = true;
-		mark();
-		try {
-			assign();
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+		// TODO: Zach implement this!boolean success = true;
+        boolean success = true;
+        mark();
+        try {
+            assign();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
 	/**
-	 * assign() is the assignment section of the grammar. It
-	 * handles statements of assignment with and without an
-	 * operator.
+	 * Let Mike do this
 	 * @throws MismatchedTokenException 
-	 * @author Mike
 	 */
 	public void assign() throws MismatchedTokenException {
 		if(speculateRegularAssign()) {
-			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			
 		} else if(speculateOperatorAssign()) {
-			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.OP);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			
 		} else {
 			throw new MismatchedTokenException("Expecting an assignment; Found " + lookToken(1));
 		}
 	}
 	
-	/**
-	 * Speculates an assignment statement. (int x = 5;)
-	 * @return if this token stream is an assignment statement.
-	 * @author Mike
-	 */
-	private boolean speculateRegularAssign() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
-	}
-
-	/**
-	 * Speculates an operator assignment statement. (int x = y + 5;)
-	 * @return if this token stream is an operator assignment statement.
-	 * @author Mike
-	 */
 	private boolean speculateOperatorAssign() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.OP);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+		// TODO: Let Mike do this
+		return false;
+	}
+
+	private boolean speculateRegularAssign() {
+		// TODO: Let Mike do this
+		return false;
 	}
 
 	/**
-	 * comp() is the comparison section of the grammar. It 
-	 * handles statements of equality and value comparisons
-	 * for less than or greater than.
+	 * Let Mike do this
 	 * @throws MismatchedTokenException 
-	 * @author Mike
 	 */
 	public void comp() throws MismatchedTokenException {
 		if(speculateEquality()) {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			if(speculateSemi())
-				match(ZMMLexer.SEMI);
-		} else if (speculateValDif()) {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			if(speculateSemi())
-				match(ZMMLexer.SEMI);
-		} else if(speculateValDifEq()) {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			if(speculateSemi())
-				match(ZMMLexer.SEMI);
+			
+		} else if(speculateGreater()) {
+			
+		} else if(speculateLess()) {
+			
 		} else {
 			throw new MismatchedTokenException("Expecting a comparison; Found " + lookToken(1));
 		}
 	}
 	
-	/**
-	 * Speculates the next token is a semi colon token.
-	 * @return if the next token in the stream is a semi colon
-	 * @author Mike
-	 */
-	private boolean speculateSemi() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
-	}
-	
-	/**
-	 * Speculates an equality statement. (==)
-	 * @return if this token stream is an equality comparison statement.
-	 * @author Mike
-	 */
-	private boolean speculateEquality() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
-	}
-	
-	/**
-	 * Speculates an value difference statement. (< or >)
-	 * @return if this token stream is an value difference comparison statement.
-	 * @author Mike
-	 */
-	private boolean speculateValDif() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
-	}
-	
-	/**
-	 * Speculates an value difference equality statement. (<= or >=)
-	 * @return if this token stream is an value difference equality comparison statement.
-	 * @author Mike
-	 */
-	private boolean speculateValDifEq() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
+	private boolean speculateLess() {
+		// TODO: Let Mike do this
+		return false;
 	}
 
-	/**
-	 * whileS() matches the tokens required for a while statement
-	 * @throws MismatchedTokenException
-	 * @author Mike
-	 */
+	private boolean speculateGreater() {
+		// TODO: Let Mike do this
+		return false;
+	}
+
+	private boolean speculateEquality() {
+		// TODO: Let Mike do this
+		return false;
+	}
+
 	public void whileS() throws MismatchedTokenException {
 		match(ZMMLexer.WHILE);
 		match(ZMMLexer.OPAREN);
-		comp();
+		stat();
 		match(ZMMLexer.CPAREN);
 		match(ZMMLexer.OBRACK);
 		while(lookAhead(1) != ZMMLexer.CBRACK) {
@@ -381,7 +265,6 @@ public class ZMMParser extends Parser {
             stat();
         }
         match(ZMMLexer.CBRACK);
-        elseS();
 	}
 
     /**
