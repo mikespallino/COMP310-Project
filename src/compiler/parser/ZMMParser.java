@@ -45,20 +45,62 @@ public class ZMMParser extends Parser {
 			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1));
 		}
 	}
-	
+
+    /**
+     * Speculates elseS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateElseS() {
 		// TODO: Zach implement this!
-		return false;
+        boolean success = true;
+        mark();
+        try {
+            elseS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
+    /**
+     * Speculates ifS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateIfS() {
 		// TODO: Zach implement this!
-		return false;
+        boolean success = true;
+        mark();
+        try {
+            ifS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
+    /**
+     * Speculates forS
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateForS() {
 		// TODO: Zach implement this!
-		return false;
+        boolean success = true;
+        mark();
+        try {
+            forS();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
 	private boolean speculateWhileS() {
@@ -73,14 +115,42 @@ public class ZMMParser extends Parser {
 		return success;
 	}
 
+    /**
+     * Speculates comp
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateComp() {
 		// TODO: Zach implement this!
-		return false;
+        boolean success = true;
+        mark();
+        try {
+            comp();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
+    /**
+     * Speculates assign
+     * if try works success is returned as true
+     * @return
+     * @author Zach
+     */
 	private boolean speculateAssign() {
-		// TODO: Zach implement this!
-		return false;
+		// TODO: Zach implement this!boolean success = true;
+        boolean success = true;
+        mark();
+        try {
+            assign();
+        } catch(MismatchedTokenException e) {
+            success = false;
+        }
+        release();
+        return success;
 	}
 
 	/**
