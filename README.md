@@ -1,19 +1,29 @@
 # COMP310-Project
 This project will entail creating a compiler for the assembly instruction set of the simple 16-bit cpu Professor Joey Lawrance gave us in COMP278.
 
-## The Grammar
+##The General Idea
+We will first go about creating a backtracking parser and lexer for the grammar for assembly. We will then do a conversion to Machine Code (hexadecimal output of the code in a format that can be loaded into a Logisim RAM module) from there. Then we will create another parser and lexer for the actual DSL. Then we will build an AST and verify the syntax of input. Finally we will generate the Assembly instructions from the DSL and pass that back into the original parser and lexer for the assembly code.
+
+## The Grammar for Assembly
 	stats           : stat* EOF;
-	stat            : busControlInstr | arithmaticInstr;
+	stat            : (busControlInstr | arithmeticInstr) NWLN;
 	busControlInstr : instr reg mmm | instr reg;
-	arithmaticInstr : instr reg reg reg;
-	mmm             : IMMD NWLN;
-	reg             : REGISTER COMMA | REGISTER NWLN;
+	arithmeticInstr : instr reg reg reg;
+	mmm             : IMMD;
+	reg             : REGISTER COMMA | REGISTER;
 	instr           : INSTRUCTION;
 
-##The General Idea
-We will first go about creating a backtracking parser and lexer for the grammar. Then we will build an AST and verify the syntax of input. Finally we will generate the hexadecimal output of the code in a format that can be loaded into a Logisim RAM module.
+## The Grammar for ZMM
+	stats				: stat* EOF;
+	stat				: assign | comp | while | for | if;
+	assign				: ((DATATYPE NAME EQUALS (NAME | VALUE)) | (DATATYPE NAME EQUALS (NAME | VALUE) OP (NAME | VALUE))) SEMI;
+	comp				: ((NAME | VALUE) (EQUALS EQUALS | LESS | GREATER | LESS EQUAL | GREATER LESS) (NAME | VALUE) SEMI) | ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE));
+	while				: WHILE OPAREN comp CPAREN OBRACK (stat)* CBRACK;
+	for					: FOR OPAREN stat comp stat CPAREN OBRACK (stat)* CBRACK;
+	if					: IF OPAREN comp CPAREN OBRACK (stat)* CBRACK else;
+	else				: ELSE OBRACK (stat)* CBRACK;
 
-##16-BIT CPU ISA
+## 16-BIT CPU ISA (reference)
 	Reverse column order
 	Machine code      Assembly           C/C++/Java(Script?) equivalent
 	op   Rd  Ra  Rb

@@ -1,6 +1,10 @@
 package compiler.lexer;
 
-public class ListLexer extends Lexer {
+/**
+ * ASMLexer is an lexer that tokenizes a string of input data.
+ * @author Mike
+ */
+public class ASMLexer extends Lexer {
 	
 	public static final int REGISTER = 2;
 	public static final int INSTRUCTION = 3;
@@ -9,7 +13,7 @@ public class ListLexer extends Lexer {
 	public static final int NWLN     = 6;
 	public static String[] tokenNames = {"n/a", "<EOF>", "REGISTER", "INSTRUCTION", "COMMA", "IMMD", "NWLN"};
 	
-	public ListLexer(String input) {
+	public ASMLexer(String input) {
 		super(input);
 	}
 	
@@ -17,17 +21,11 @@ public class ListLexer extends Lexer {
 		return tokenNames[index];
 	}
 	
-	boolean isLetter() {
-		return (getC() >= 'a' && getC() <= 'z') || (getC() >= 'A' && getC() <= 'Z') && getC() != 'r' && getC() != 'R';
-	}
-	boolean isNumber() {
-		return (getC() >= '0' && getC() <= '9');
-	}
-	
 	boolean isR() {
 		return (getC() == 'r' || getC() == 'R');
 	}
 	
+	@Override
 	public Token nextToken() {
 		while(getC() != EOF) {
 			switch(getC()) {
@@ -38,10 +36,10 @@ public class ListLexer extends Lexer {
 				continue;
 			case '\n':
 				consume();
-				return new Token(NWLN, "\n");
+				return new Token(NWLN, "\n", this);
 			case ',':
 				consume();
-				return new Token(COMMA, ",");
+				return new Token(COMMA, ",", this);
 			default:
 				if(isLetter()) {
 					return WORD();
@@ -53,9 +51,13 @@ public class ListLexer extends Lexer {
 				throw new Error("Invalid character: " + getC());
 			}
 		}
-		return new Token(EOF_TYPE, "<EOF>");
+		return new Token(EOF_TYPE, "<EOF>", this);
 	}
 	
+	/**
+	 * While the characters are numbers create an immediate value token.
+	 * @return an immediate value token
+	 */
 	private Token IMMEDIATE_VALUE() {
 		StringBuilder buf = new StringBuilder();
 		int count = 0;
@@ -67,9 +69,13 @@ public class ListLexer extends Lexer {
 				throw new Error("Immediate values can only be 8 bits. Value: " +  buf.toString() + getC());
 			}
 		} while (isNumber());
-		return new Token(IMMD, buf.toString());
+		return new Token(IMMD, buf.toString(), this);
 	}
 
+	/**
+	 * While the characters are letters create an instruction token.
+	 * @return instruction token.
+	 */
 	private Token WORD() {
 		StringBuilder buf = new StringBuilder();
 		do {
@@ -91,21 +97,28 @@ public class ListLexer extends Lexer {
 			case "JZL":
 			case "LOAD":
 			case "STOR":
-				return new Token(INSTRUCTION, buf.toString());
+				return new Token(INSTRUCTION, buf.toString(), this);
 			default:
 				throw new Error("Invalid instruction: " + buf.toString());
 		}
 	}
 	
+	/**
+	 * While the character following an R is a number create a register token.
+	 * @returna register token.
+	 */
 	private Token REGISTER() {
 		StringBuilder buf = new StringBuilder();
 		do {
 			buf.append(getC());
 			consume();
 		} while (isNumber());
-		return new Token(REGISTER, buf.toString());
+		return new Token(REGISTER, buf.toString(), this);
 	}
 	
+	/**
+	 * While the character is whitespace, throw it out.
+	 */
 	private void WS() {
 		while(getC() == ' ' || getC() == '\t' || getC() == '\r') {
 				consume();
