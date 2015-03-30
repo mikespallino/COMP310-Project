@@ -179,8 +179,20 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.SEMI);
+		} else if(speculateVarAssign()) {
+			match(ZMMLexer.NAME);
+			match(ZMMLexer.EQUALS);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.SEMI);
 		} else if(speculateOperatorAssign()) {
 			match(ZMMLexer.INT);
+			match(ZMMLexer.NAME);
+			match(ZMMLexer.EQUALS);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.OP);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.SEMI);
+		} else if(speculateVarOperatorAssign()) {
 			match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
@@ -212,6 +224,26 @@ public class ZMMParser extends Parser {
 		release();
 		return success;
 	}
+	
+	/**
+	 * Speculates a variable assignment statement. (x = 6;)
+	 * @return if this token stream is a variable assignment statement.
+	 * @author Mike
+	 */
+	private boolean speculateVarAssign() {
+		boolean success = true;
+		mark();
+		try {
+			match(ZMMLexer.NAME);
+			match(ZMMLexer.EQUALS);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.SEMI);
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
+	}
 
 	/**
 	 * Speculates an operator assignment statement. (int x = y + 5;)
@@ -223,6 +255,28 @@ public class ZMMParser extends Parser {
 		mark();
 		try {
 			match(ZMMLexer.INT);
+			match(ZMMLexer.NAME);
+			match(ZMMLexer.EQUALS);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.OP);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.SEMI);
+		} catch(MismatchedTokenException e) {
+			success = false;
+		}
+		release();
+		return success;
+	}
+	
+	/**
+	 * Speculates a variable operator assignment statement. (x = x + 6;)
+	 * @return if this token stream is a variable operator assignment statement.
+	 * @author Mike
+	 */
+	private boolean speculateVarOperatorAssign() {
+		boolean success = true;
+		mark();
+		try {
 			match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
@@ -299,7 +353,8 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			if(speculateSemi())
+				match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
@@ -319,7 +374,8 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.LESS, ZMMLexer.GREATER);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			if(speculateSemi())
+				match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
@@ -340,7 +396,8 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.LESS, ZMMLexer.GREATER);
 			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.SEMI);
+			if(speculateSemi())
+				match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
@@ -356,7 +413,9 @@ public class ZMMParser extends Parser {
 	public void whileS() throws MismatchedTokenException {
 		match(ZMMLexer.WHILE);
 		match(ZMMLexer.OPAREN);
-		comp();
+		if(speculateComp()) {
+			comp();
+		}
 		match(ZMMLexer.CPAREN);
 		match(ZMMLexer.OBRACK);
 		while(lookAhead(1) != ZMMLexer.CBRACK) {
@@ -376,7 +435,9 @@ public class ZMMParser extends Parser {
         match(ZMMLexer.FOR);
         match(ZMMLexer.OPAREN);
         stat();
-        comp();
+        if(speculateComp()) {
+        	comp();
+        }
         stat();
         match(ZMMLexer.CPAREN);
         match(ZMMLexer.OBRACK);
@@ -396,7 +457,9 @@ public class ZMMParser extends Parser {
 	public void ifS() throws MismatchedTokenException{
         match(ZMMLexer.IF);
         match(ZMMLexer.OPAREN);
-        comp();
+        if(speculateComp()) {
+        	comp();
+        }
         match(ZMMLexer.CPAREN);
         match(ZMMLexer.OBRACK);
         while(lookAhead(1) != ZMMLexer.CBRACK) {
