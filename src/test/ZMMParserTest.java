@@ -1,5 +1,9 @@
 package test;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import org.junit.Test;
 
 import compiler.lexer.ZMMLexer;
@@ -10,12 +14,22 @@ public class ZMMParserTest {
 
 	@Test
 	public void testStats() {
-		ZMMLexer lexer = new ZMMLexer("int x = 1; while(x == 5) [\n x = x + 1; ]");
+		Scanner scan;
+		String input = "";
+		try {
+			scan = new Scanner(new File("res/test.zmm"));
+			input = "";
+			while(scan.hasNext()) {
+				input += scan.next();
+			}
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		ZMMLexer lexer = new ZMMLexer(input);
 		ZMMParser parser = new ZMMParser(lexer);
 		try {
 			parser.stats();
 		} catch (MismatchedTokenException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

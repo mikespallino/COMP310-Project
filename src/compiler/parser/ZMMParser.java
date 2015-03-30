@@ -153,7 +153,6 @@ public class ZMMParser extends Parser {
      * @author Zach
      */
 	private boolean speculateAssign() {
-		// TODO: Zach implement this!boolean success = true;
         boolean success = true;
         mark();
         try {
@@ -466,7 +465,9 @@ public class ZMMParser extends Parser {
             stat();
         }
         match(ZMMLexer.CBRACK);
-        elseS();
+        if(speculateElseS()) {
+        	elseS();
+        }
 	}
 
     /**
