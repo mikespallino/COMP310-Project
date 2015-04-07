@@ -51,13 +51,13 @@ public class ZMMParser extends Parser {
 	 */
 	public void stat() throws MismatchedTokenException {
 		if(speculateAssign()) {
-			assign();
+			//assign();
 		} else if(speculateComp()) {
-			comp();
+			//comp();
 		} else if(speculateWhileS()) {
-			whileS();
+			//whileS();
 		}else if(speculateIfS()) {
-			ifS();
+			//ifS();
 		} else {
 			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1) + " " + lookToken(2));
 		}
@@ -94,7 +94,7 @@ public class ZMMParser extends Parser {
         } catch(MismatchedTokenException e) {
             success = false;
         }
-        release();
+        //release();
         return success;
 	}
 
@@ -111,7 +111,7 @@ public class ZMMParser extends Parser {
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
-		release();
+		//release();
 		return success;
 	}
 
@@ -129,7 +129,7 @@ public class ZMMParser extends Parser {
         } catch(MismatchedTokenException e) {
             success = false;
         }
-        release();
+        //release();
         return success;
 	}
 
@@ -147,7 +147,7 @@ public class ZMMParser extends Parser {
         } catch(MismatchedTokenException e) {
             success = false;
         }
-        release();
+        //release();
         return success;
 	}
 
