@@ -1,6 +1,5 @@
 package compiler.parser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import compiler.codegen.InvalidTokenException;
@@ -20,7 +19,6 @@ import compiler.lexer.ZMMLexer;
 public class ZMMParser extends Parser {
 
 	private ZMMCodeGenerator asmCodeGenerator;
-	private ArrayList<Token> tokenList = new ArrayList<Token>();
 	
 	public ZMMParser(Lexer input) {
 		super(input);
@@ -222,25 +220,18 @@ public class ZMMParser extends Parser {
 	 */
 	private boolean speculateVarAssign() {
 		boolean success = true;
+		Token name = null, val = null;
 		mark();
 		try {
-			match(ZMMLexer.NAME);
+			name = match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			val = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
 		}
-		if(success) {
-			try {
-				asmCodeGenerator.generateArithmetic(tokenList.get(tokenList.size() - 4).text.toCharArray()[0],
-						tokenList.get(tokenList.size() - 3), tokenList.get(tokenList.size() - 2),
-						tokenList.get(tokenList.size() - 1));
-				tokenList.clear();
-			} catch (InvalidTokenException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if(success && name != null && val != null) {
+			asmCodeGenerator.generateDecl(name, val);
 		}
 		release();
 		return success;
@@ -253,17 +244,25 @@ public class ZMMParser extends Parser {
 	 */
 	private boolean speculateOperatorAssign() {
 		boolean success = true;
+		Token val1 = null, val2 = null, val3 = null, op = null;
 		mark();
 		try {
 			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
+			val1 = match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.OP);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			val2 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			op = match(ZMMLexer.OP);
+			val3 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
+		}
+		if(success && val1 != null && val2 != null && val3 != null && op != null) {
+			try {
+				asmCodeGenerator.generateArithmetic(op.text.toCharArray()[0], val1, val2, val3);
+			} catch (InvalidTokenException e) {
+				throw new Error("Couldn't generate assembly instruction.");
+			}
 		}
 		release();
 		return success;
