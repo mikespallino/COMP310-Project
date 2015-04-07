@@ -1,5 +1,8 @@
 package compiler.lexer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * ASMLexer is an lexer that tokenizes a string of input data.
  * @author Mike
@@ -13,8 +16,11 @@ public class ASMLexer extends Lexer {
 	public static final int NWLN     = 6;
 	public static String[] tokenNames = {"n/a", "<EOF>", "REGISTER", "INSTRUCTION", "COMMA", "IMMD", "NWLN"};
 	
+	private List<Token> parsedTokens;
+	
 	public ASMLexer(String input) {
 		super(input);
+		parsedTokens = new ArrayList<Token>();
 	}
 	
 	public String getTokenName(int index) {
@@ -27,6 +33,7 @@ public class ASMLexer extends Lexer {
 	
 	@Override
 	public Token nextToken() {
+		Token t;
 		while(getC() != EOF) {
 			switch(getC()) {
 			case ' ':
@@ -36,10 +43,14 @@ public class ASMLexer extends Lexer {
 				continue;
 			case '\n':
 				consume();
-				return new Token(NWLN, "\n", this);
+				t = new Token(NWLN, "\n", this);
+				parsedTokens.add(t);
+				return t;
 			case ',':
 				consume();
-				return new Token(COMMA, ",", this);
+				t = new Token(COMMA, ",", this);
+				parsedTokens.add(t);
+				return t;
 			default:
 				if(isLetter()) {
 					return WORD();
@@ -51,7 +62,9 @@ public class ASMLexer extends Lexer {
 				throw new Error("Invalid character: " + getC());
 			}
 		}
-		return new Token(EOF_TYPE, "<EOF>", this);
+		t = new Token(EOF_TYPE, "<EOF>", this);
+		parsedTokens.add(t);
+		return t;
 	}
 	
 	/**
@@ -59,6 +72,7 @@ public class ASMLexer extends Lexer {
 	 * @return an immediate value token
 	 */
 	private Token IMMEDIATE_VALUE() {
+		Token t;
 		StringBuilder buf = new StringBuilder();
 		int count = 0;
 		do {
@@ -69,7 +83,9 @@ public class ASMLexer extends Lexer {
 				throw new Error("Immediate values can only be 8 bits. Value: " +  buf.toString() + getC());
 			}
 		} while (isNumber());
-		return new Token(IMMD, buf.toString(), this);
+		t = new Token(IMMD, buf.toString(), this);
+		parsedTokens.add(t);
+		return t;
 	}
 
 	/**
@@ -77,6 +93,7 @@ public class ASMLexer extends Lexer {
 	 * @return instruction token.
 	 */
 	private Token WORD() {
+		Token t;
 		StringBuilder buf = new StringBuilder();
 		do {
 			buf.append(getC());
@@ -97,7 +114,9 @@ public class ASMLexer extends Lexer {
 			case "JZL":
 			case "LOAD":
 			case "STOR":
-				return new Token(INSTRUCTION, buf.toString(), this);
+				t = new Token(INSTRUCTION, buf.toString(), this);
+				parsedTokens.add(t);
+				return t;
 			default:
 				throw new Error("Invalid instruction: " + buf.toString());
 		}
@@ -108,12 +127,15 @@ public class ASMLexer extends Lexer {
 	 * @returna register token.
 	 */
 	private Token REGISTER() {
+		Token t;
 		StringBuilder buf = new StringBuilder();
 		do {
 			buf.append(getC());
 			consume();
 		} while (isNumber());
-		return new Token(REGISTER, buf.toString(), this);
+		t = new Token(REGISTER, buf.toString(), this);
+		parsedTokens.add(t);
+		return t;
 	}
 	
 	/**
@@ -123,5 +145,13 @@ public class ASMLexer extends Lexer {
 		while(getC() == ' ' || getC() == '\t' || getC() == '\r') {
 				consume();
 		}
+	}
+
+	public List<Token> getParsedTokens() {
+		return parsedTokens;
+	}
+
+	public void setParsedTokens(List<Token> parsedTokens) {
+		this.parsedTokens = parsedTokens;
 	}
 }

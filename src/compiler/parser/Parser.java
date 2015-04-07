@@ -15,15 +15,13 @@ public class Parser {
 
 	Lexer input;
 	List<Integer> markers;
-	List<Token> lookahead;
-	List<Token> parsedTokens;
+	protected List<Token> lookahead;
 	int p = 0;
 	
 	public Parser(Lexer input) {
 		this.input = input;
 		markers = new ArrayList<Integer>();
 		lookahead = new ArrayList<Token>();
-		parsedTokens = new ArrayList<Token>();
 	}
 	
 	/**
@@ -33,7 +31,7 @@ public class Parser {
 	 */
 	public Token lookToken(int i) {
 		sync(i);
-		return lookahead.get(p+i-1);
+		return getLookahead().get(p+i-1);
 	}
 	
 	/**
@@ -51,10 +49,12 @@ public class Parser {
 	 * @param target - Token type you're trying to match
 	 * @throws MismatchedTokenException
 	 */
-	public void match(int target) throws MismatchedTokenException {
+	public Token match(int target) throws MismatchedTokenException {
+		Token temp;
 		if(lookAhead(1) == target) {
-			parsedTokens.add(lookToken(1));
+			temp = lookToken(1);
 			consume();
+			return temp;
 		} else {
 			throw new MismatchedTokenException("Expecting " + input.getTokenName(target) + "; Found " + lookToken(1));
 		}
@@ -67,13 +67,16 @@ public class Parser {
 	 * @param target2 - another possible token type you're trying to match
 	 * @throws MismatchedTokenException
 	 */
-	public void match(int target1, int target2) throws MismatchedTokenException {
+	public Token match(int target1, int target2) throws MismatchedTokenException {
+		Token temp;
 		if(lookAhead(1) == target1) {
-			parsedTokens.add(lookToken(1));
+			temp = lookToken(1);
 			consume();
+			return temp;
 		} else if(lookAhead(1) == target2) {
-			parsedTokens.add(lookToken(1));
+			temp = lookToken(1);
 			consume();
+			return temp;
 		} else {
 			throw new MismatchedTokenException("Expecting either " + input.getTokenName(target1) + " or " + input.getTokenName(target2) + "; Found " + lookToken(1));
 		}
@@ -84,8 +87,8 @@ public class Parser {
 	 * @param i
 	 */
 	public void sync(int i) {
-		if(p+i-1 > lookahead.size()-1) {
-			int n = (p+i-1) - (lookahead.size() - 1);
+		if(p+i-1 > getLookahead().size()-1) {
+			int n = (p+i-1) - (getLookahead().size() - 1);
 			fill(n);
 		}
 	}
@@ -96,7 +99,7 @@ public class Parser {
 	 */
 	public void fill(int n) {
 		for(int i = 1; i <= n; i++) {
-			lookahead.add(input.nextToken());
+			getLookahead().add(input.nextToken());
 		}
 	}
 	
@@ -106,9 +109,9 @@ public class Parser {
 	 */
 	public void consume() {
 		p++;
-		if(p == lookahead.size() && !isSpeculating()) {
+		if(p == getLookahead().size() && !isSpeculating()) {
 			p = 0;
-			lookahead.clear();
+			getLookahead().clear();
 		}
 		sync(1);
 	}
@@ -148,6 +151,14 @@ public class Parser {
 	 */
 	public boolean isSpeculating() {
 		return markers.size() > 0;
+	}
+
+	public List<Token> getLookahead() {
+		return lookahead;
+	}
+
+	public void setLookahead(List<Token> lookahead) {
+		this.lookahead = lookahead;
 	}
 	
 }

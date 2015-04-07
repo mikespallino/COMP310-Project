@@ -6,9 +6,12 @@ import java.util.Scanner;
 
 import org.junit.Test;
 
+import compiler.lexer.ASMLexer;
 import compiler.lexer.ZMMLexer;
+import compiler.parser.ASMBacktrackParser;
 import compiler.parser.MismatchedTokenException;
 import compiler.parser.ZMMParser;
+import compiler.preprocessor.Preprocessor;
 
 public class ZMMParserTest {
 
@@ -18,9 +21,8 @@ public class ZMMParserTest {
 		String input = "";
 		try {
 			scan = new Scanner(new File("res/test.zmm"));
-			input = "";
-			while(scan.hasNext()) {
-				input += scan.next();
+			while(scan.hasNextLine()) {
+				input += scan.nextLine();
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
@@ -29,6 +31,15 @@ public class ZMMParserTest {
 		ZMMParser parser = new ZMMParser(lexer);
 		try {
 			parser.stats();
+			String asm = parser.getCodeGenerator().getOutput();
+			System.out.println(asm +"\n");
+			Preprocessor pre = new Preprocessor(parser.getLookahead(), lexer);
+			parser.setLookahead(pre.process());
+			
+			ASMBacktrackParser asmParser = new ASMBacktrackParser(new ASMLexer(asm));
+			String output = asmParser.stats();
+			//Write this to a file!
+			System.out.println(output);
 		} catch (MismatchedTokenException e) {
 			e.printStackTrace();
 		}

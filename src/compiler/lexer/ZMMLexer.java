@@ -1,5 +1,8 @@
 package compiler.lexer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * ZMMLexer is a Lexer implementation for ZMM.
  * @author Mike
@@ -16,21 +19,24 @@ public class ZMMLexer extends Lexer {
 	public static final int CPAREN  = 9;
 	public static final int OBRACK  = 10;
 	public static final int CBRACK  = 11;
-	public static final int FOR     = 12;
-	public static final int IF      = 13;
-	public static final int ELSE    = 14;
-	public static final int GREATER = 15;
-	public static final int LESS    = 16;
-	public static final int OP      = 17;
-	public static String[] tokenNames = {"n/a", "<EOF>", "INT", "NAME", "EQUALS", "VALUE", "SEMI", "WHILE", "OPAREN", "CPAREN", "OBRACK", "CBRACK", "FOR", "IF", "ELSE", ">", "<", "OP"};
+	public static final int IF      = 12;
+	public static final int ELSE    = 13;
+	public static final int GREATER = 14;
+	public static final int LESS    = 15;
+	public static final int OP      = 16;
+	public static String[] tokenNames = {"n/a", "<EOF>", "INT", "NAME", "EQUALS", "VALUE", "SEMI", "WHILE", "OPAREN", "CPAREN", "OBRACK", "CBRACK", "IF", "ELSE", ">", "<", "OP"};
+	
+	private List<Token> parsedTokens;
 	
 	public ZMMLexer(String input) {
 		super(input);
+		 parsedTokens = new ArrayList<Token>();
 	}
 
 	@Override
 	public Token nextToken() {
 		while(getC() != EOF) {
+			Token t;
 			switch(getC()) {
 			case ' ':
 			case '\t':
@@ -40,40 +46,64 @@ public class ZMMLexer extends Lexer {
 				continue;
 			case ';':
 				consume();
-				return new Token(SEMI, ";", this);
+				t = new Token(SEMI, ";", this);
+				parsedTokens.add(t);
+				return t;
 			case '(':
 				consume();
-				return new Token(OPAREN, "(", this);
+				t = new Token(OPAREN, "(", this);
+				parsedTokens.add(t);
+				return t;
 			case ')':
 				consume();
-				return new Token(CPAREN, ")", this);
+				t = new Token(CPAREN, ")", this);
+				parsedTokens.add(t);
+				return t;
 			case '[':
 				consume();
-				return new Token(OBRACK, "[", this);
+				t = new Token(OBRACK, "[", this);
+				parsedTokens.add(t);
+				return t;
 			case ']':
 				consume();
-				return new Token(CBRACK, "]", this);
+				t = new Token(CBRACK, "]", this);
+				parsedTokens.add(t);
+				return t;
 			case '=':
 				consume();
-				return new Token(EQUALS, "=", this);
+				t = new Token(EQUALS, "=", this);
+				parsedTokens.add(t);
+				return t;
 			case '>':
 				consume();
-				return new Token(GREATER, ">", this);
+				t = new Token(GREATER, ">", this);
+				parsedTokens.add(t);
+				return t;
 			case '<':
 				consume();
-				return new Token(LESS, "<", this);
+				t = new Token(LESS, "<", this);
+				parsedTokens.add(t);
+				return t;
 			case '+':
 				consume();
-				return new Token(OP, "+", this);
+				t = new Token(OP, "+", this);
+				parsedTokens.add(t);
+				return t;
 			case '-':
 				consume();
-				return new Token(OP, "-", this);
+				t = new Token(OP, "-", this);
+				parsedTokens.add(t);
+				return t;
 			case '*':
 				consume();
-				return new Token(OP, "*", this);
+				t = new Token(OP, "*", this);
+				parsedTokens.add(t);
+				return t;
 			case '/':
 				consume();
-				return new Token(OP, "/", this);
+				t = new Token(OP, "/", this);
+				parsedTokens.add(t);
+				return t;
 			default:
 				if(isLetter()) {
 					return NAME();
@@ -92,23 +122,32 @@ public class ZMMLexer extends Lexer {
 	 */
 	private Token NAME() {
 		StringBuilder buf = new StringBuilder();
+		Token t;
 		do {
 			buf.append(getC());
 			consume();
 		} while (isLetter());
 		switch(buf.toString().toUpperCase()) {
 			case "WHILE":
-				return new Token(WHILE, "while", this);
-			case "FOR":
-				return new Token(FOR, "for", this);
+				t = new Token(WHILE, "while", this);
+				parsedTokens.add(t);
+				return t;
 			case "IF":
-				return new Token(IF, "if", this);
+				t = new Token(IF, "if", this);
+				parsedTokens.add(t);
+				return t;
 			case "ELSE":
-				return new Token(ELSE, "else", this);
+				t = new Token(ELSE, "else", this);
+				parsedTokens.add(t);
+				return t;
 			case "INT":
-				return new Token(INT, "int", this);
+				t = new Token(INT, "int", this);
+				parsedTokens.add(t);
+				return t;
 			default:
-				return new Token(NAME, buf.toString(), this);
+				t = new Token(NAME, buf.toString(), this);
+				parsedTokens.add(t);
+				return t;
 		}
 	}
 	
@@ -122,7 +161,9 @@ public class ZMMLexer extends Lexer {
 			buf.append(getC());
 			consume();
 		} while (isNumber());
-		return new Token(VALUE, buf.toString(), this);
+		Token t = new Token(VALUE, buf.toString(), this);
+		parsedTokens.add(t);
+		return t;
 	}
 
 	@Override
@@ -137,6 +178,14 @@ public class ZMMLexer extends Lexer {
 		while(getC() == ' ' || getC() == '\t' || getC() == '\r' || getC() == '\n') {
 				consume();
 		}
+	}
+
+	public List<Token> getParsedTokens() {
+		return parsedTokens;
+	}
+
+	public void setParsedTokens(List<Token> parsedTokens) {
+		this.parsedTokens = parsedTokens;
 	}
 	
 }

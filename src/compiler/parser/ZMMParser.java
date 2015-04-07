@@ -1,7 +1,10 @@
 package compiler.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import compiler.codegen.InvalidTokenException;
+import compiler.codegen.ZMMCodeGenerator;
 import compiler.lexer.Lexer;
 import compiler.lexer.Token;
 import compiler.lexer.ZMMLexer;
@@ -16,8 +19,12 @@ import compiler.lexer.ZMMLexer;
  */
 public class ZMMParser extends Parser {
 
+	private ZMMCodeGenerator asmCodeGenerator;
+	private ArrayList<Token> tokenList = new ArrayList<Token>();
+	
 	public ZMMParser(Lexer input) {
 		super(input);
+		asmCodeGenerator = new ZMMCodeGenerator((ZMMLexer) input);
 	}
 	
 	/**
@@ -32,7 +39,7 @@ public class ZMMParser extends Parser {
 			stat();
 		}
 		match(ZMMLexer.EOF_TYPE);
-		return parsedTokens;
+		return lookahead;
 	}
 	
 	/**
@@ -49,9 +56,7 @@ public class ZMMParser extends Parser {
 			comp();
 		} else if(speculateWhileS()) {
 			whileS();
-		} else if(speculateForS()) {
-			forS();
-		} else if(speculateIfS()) {
+		}else if(speculateIfS()) {
 			ifS();
 		} else {
 			throw new MismatchedTokenException("Expecting a statment; Found " + lookToken(1) + " " + lookToken(2));
@@ -86,24 +91,6 @@ public class ZMMParser extends Parser {
         mark();
         try {
             ifS();
-        } catch(MismatchedTokenException e) {
-            success = false;
-        }
-        release();
-        return success;
-	}
-
-    /**
-     * Speculates forS
-     * if try works success is returned as true
-     * @return
-     * @author Zach
-     */
-	private boolean speculateForS() {
-		boolean success = true;
-        mark();
-        try {
-            forS();
         } catch(MismatchedTokenException e) {
             success = false;
         }
@@ -210,15 +197,19 @@ public class ZMMParser extends Parser {
 	 */
 	private boolean speculateRegularAssign() {
 		boolean success = true;
+		Token name = null, val = null;
 		mark();
 		try {
 			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
+			name = match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			val = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
+		}
+		if(success && name != null && val != null) {
+			asmCodeGenerator.generateDecl(name, val);
 		}
 		release();
 		return success;
@@ -239,6 +230,17 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
+		}
+		if(success) {
+			try {
+				asmCodeGenerator.generateArithmetic(tokenList.get(tokenList.size() - 4).text.toCharArray()[0],
+						tokenList.get(tokenList.size() - 3), tokenList.get(tokenList.size() - 2),
+						tokenList.get(tokenList.size() - 1));
+				tokenList.clear();
+			} catch (InvalidTokenException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		release();
 		return success;
@@ -274,16 +276,24 @@ public class ZMMParser extends Parser {
 	 */
 	private boolean speculateVarOperatorAssign() {
 		boolean success = true;
+		Token val1 = null, val2 = null, val3 = null, op = null;
 		mark();
 		try {
-			match(ZMMLexer.NAME);
+			val1 = match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.OP);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			val2 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			op = match(ZMMLexer.OP);
+			val3 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.SEMI);
 		} catch(MismatchedTokenException e) {
 			success = false;
+		}
+		if(success && val1 != null && val2 != null && val3 != null && op != null) {
+			try {
+				asmCodeGenerator.generateArithmetic(op.text.toCharArray()[0], val1, val2, val3);
+			} catch (InvalidTokenException e) {
+				throw new Error("Couldn't generate assembly instruction.");
+			}
 		}
 		release();
 		return success;
@@ -424,29 +434,6 @@ public class ZMMParser extends Parser {
 	}
 
     /**
-     * for loop
-     * creates variable, checks condition, and modifies variable
-     * everything within for loop is executed via java while loop
-     * @throws MismatchedTokenException
-     * @author Zach
-     */
-	public void forS() throws MismatchedTokenException{
-        match(ZMMLexer.FOR);
-        match(ZMMLexer.OPAREN);
-        stat();
-        if(speculateComp()) {
-        	comp();
-        }
-        stat();
-        match(ZMMLexer.CPAREN);
-        match(ZMMLexer.OBRACK);
-        while(lookAhead(1) != ZMMLexer.CBRACK) {
-            stat();
-        }
-        match(ZMMLexer.CBRACK);
-	}
-
-    /**
      * if statement
      * checks one AND ONLY one condition
      * everything in if statement is executed with while loop
@@ -483,5 +470,9 @@ public class ZMMParser extends Parser {
             stat();
         }
         match(ZMMLexer.CBRACK);
+	}
+	
+	public ZMMCodeGenerator getCodeGenerator() {
+		return asmCodeGenerator;
 	}
 }

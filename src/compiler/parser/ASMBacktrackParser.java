@@ -1,9 +1,11 @@
 package compiler.parser;
 
-import java.util.List;
+import java.util.ArrayList;
 
-import compiler.lexer.Lexer;
+import compiler.codegen.ASMCodeGenerator;
+import compiler.codegen.InvalidTokenException;
 import compiler.lexer.ASMLexer;
+import compiler.lexer.Lexer;
 import compiler.lexer.Token;
 
 /**
@@ -16,8 +18,11 @@ import compiler.lexer.Token;
  */
 public class ASMBacktrackParser extends Parser {
 
+	private ASMCodeGenerator machineCode;
+	
 	public ASMBacktrackParser(Lexer input) {
 		super(input);
+		machineCode = new ASMCodeGenerator();
 	}
 	
 	/**
@@ -25,12 +30,18 @@ public class ASMBacktrackParser extends Parser {
 	 * @return a list of all the parsed tokens.
 	 * @throws MismatchedTokenException
 	 */
-	public List<Token> stats() throws MismatchedTokenException {
+	public String stats() throws MismatchedTokenException {
 		while(lookAhead(1) != ASMLexer.EOF_TYPE) {
 			stat();
 		}
 		match(ASMLexer.EOF_TYPE);
-		return parsedTokens;
+		try {
+			machineCode.generate(((ASMLexer) input).getParsedTokens());
+		} catch (InvalidTokenException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return machineCode.getOutput();
 	}
 	
 	/**
@@ -259,6 +270,14 @@ public class ASMBacktrackParser extends Parser {
 		} else {
 			throw new MismatchedTokenException("Expecting an instruction; found " + lookToken(1));
 		}
+	}
+
+	public ASMCodeGenerator getMachineCode() {
+		return machineCode;
+	}
+
+	public void setMachineCode(ASMCodeGenerator machineCode) {
+		this.machineCode = machineCode;
 	}
 
 }
