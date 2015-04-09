@@ -19,6 +19,7 @@ import compiler.lexer.ZMMLexer;
 public class ZMMParser extends Parser {
 
 	private ZMMCodeGenerator asmCodeGenerator;
+	private int count;
 	
 	public ZMMParser(Lexer input) {
 		super(input);
@@ -207,7 +208,7 @@ public class ZMMParser extends Parser {
 			success = false;
 		}
 		if(success && name != null && val != null) {
-			asmCodeGenerator.generateDecl(name, val);
+			count += asmCodeGenerator.generateDecl(name, val);
 		}
 		release();
 		return success;
@@ -231,7 +232,7 @@ public class ZMMParser extends Parser {
 			success = false;
 		}
 		if(success && name != null && val != null) {
-			asmCodeGenerator.generateDecl(name, val);
+			count += asmCodeGenerator.generateDecl(name, val);
 		}
 		release();
 		return success;
@@ -258,8 +259,13 @@ public class ZMMParser extends Parser {
 			success = false;
 		}
 		if(success && val1 != null && val2 != null && val3 != null && op != null) {
+			if(val2.type == ZMMLexer.VALUE && val3.type == ZMMLexer.NAME) {
+				count += asmCodeGenerator.generateDecl(val3, val2);
+			} else if(val2.type == ZMMLexer.NAME && val3.type == ZMMLexer.VALUE) {
+				count += asmCodeGenerator.generateDecl(val2, val3);
+			}
 			try {
-				asmCodeGenerator.generateArithmetic(op.text.toCharArray()[0], val1, val2, val3);
+				count += asmCodeGenerator.generateArithmetic(op.text.toCharArray()[0], val1, val2, val3);
 			} catch (InvalidTokenException e) {
 				throw new Error("Couldn't generate assembly instruction.");
 			}
@@ -289,7 +295,7 @@ public class ZMMParser extends Parser {
 		}
 		if(success && val1 != null && val2 != null && val3 != null && op != null) {
 			try {
-				asmCodeGenerator.generateArithmetic(op.text.toCharArray()[0], val1, val2, val3);
+				count += asmCodeGenerator.generateArithmetic(op.text.toCharArray()[0], val1, val2, val3);
 			} catch (InvalidTokenException e) {
 				throw new Error("Couldn't generate assembly instruction.");
 			}
@@ -305,7 +311,7 @@ public class ZMMParser extends Parser {
 	 * @throws MismatchedTokenException 
 	 * @author Mike
 	 */
-	public void comp() throws MismatchedTokenException {
+	public char comp() throws MismatchedTokenException {
 		if(speculateEquality()) {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.EQUALS);
@@ -313,22 +319,22 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			if(speculateSemi())
 				match(ZMMLexer.SEMI);
+			return 'E';
 		} else if (speculateValDif()) {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
+			Token t = match(ZMMLexer.LESS, ZMMLexer.GREATER);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			if(speculateSemi())
 				match(ZMMLexer.SEMI);
-		} else if(speculateValDifEq()) {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			if(speculateSemi())
-				match(ZMMLexer.SEMI);
+			if(t.text == "<") {
+				return 'L';
+			} else if(t.text == ">") {
+				return 'G';
+			}
 		} else {
 			throw new MismatchedTokenException("Expecting a comparison; Found " + lookToken(1));
 		}
+		return '-';
 	}
 	
 	/**
@@ -390,28 +396,6 @@ public class ZMMParser extends Parser {
 		release();
 		return success;
 	}
-	
-	/**
-	 * Speculates an value difference equality statement. (<= or >=)
-	 * @return if this token stream is an value difference equality comparison statement.
-	 * @author Mike
-	 */
-	private boolean speculateValDifEq() {
-		boolean success = true;
-		mark();
-		try {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			if(speculateSemi())
-				match(ZMMLexer.SEMI);
-		} catch(MismatchedTokenException e) {
-			success = false;
-		}
-		release();
-		return success;
-	}
 
 	/**
 	 * whileS() matches the tokens required for a while statement
@@ -421,14 +405,19 @@ public class ZMMParser extends Parser {
 	public void whileS() throws MismatchedTokenException {
 		match(ZMMLexer.WHILE);
 		match(ZMMLexer.OPAREN);
+		char type = '-';
 		if(speculateComp()) {
-			comp();
+			type = comp();
 		}
+		count = 0;
 		match(ZMMLexer.CPAREN);
 		match(ZMMLexer.OBRACK);
+		asmCodeGenerator.mark();
 		while(lookAhead(1) != ZMMLexer.CBRACK) {
 			stat();
 		}
+		//count += asmCodeGenerator.generateWhile(comp, comp2, type, count);
+		asmCodeGenerator.release();
 		match(ZMMLexer.CBRACK);
 	}
 
