@@ -60,7 +60,7 @@ public class Context
         this.type = type;
     }
 
-    public int setCount(int count)
+    public void setCount(int count)
     {
         this.count = count;
     }
