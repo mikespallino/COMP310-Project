@@ -55,6 +55,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "ADD R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "ADD R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "ADD R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 			case '-':
@@ -141,14 +143,14 @@ public class ZMMCodeGenerator implements CodeGenerator {
 		String after = output.substring(outputPointer.get(outputPointer.size() - 1));
 		String insert = "";
 		String unconditionalJumpBack = "JZE R0, ";
-		if(inlineStats < 0x0F) {
+		if(inlineStats <= 0x0F) {
 			unconditionalJumpBack += "0" + Integer.toHexString(new Integer(inlineStats)) + "\n";
 		} else {
 			unconditionalJumpBack += Integer.toHexString(new Integer(inlineStats)) + "\n";
 		}
 		String tokenOneRegister = Integer.toHexString(new Integer(fields.get(c.getTokOne().text)));
 		String tokenTwoRegister;
-		if(fields.get(c.getTokTwo().text) != null && fields.get(c.getTokTwo().text) < 0x0A) {
+		if(fields.get(c.getTokTwo().text) != null && fields.get(c.getTokTwo().text) <= 0x0F) {
 			tokenTwoRegister = "0" + Integer.toHexString(new Integer(fields.get(c.getTokTwo().text)));
 		} else if(fields.get(c.getTokTwo().text) != null) {
 			tokenTwoRegister = Integer.toHexString(new Integer(fields.get(c.getTokTwo().text)));
@@ -158,14 +160,14 @@ public class ZMMCodeGenerator implements CodeGenerator {
 		switch(c.getType()) {
 		case 'E':
 			if(c.getTokTwo().type == ZMMLexer.VALUE) {
-				if(new Integer(c.getTokTwo().text) < 0x0A) {
+				if(new Integer(c.getTokTwo().text) <= 0x0F) {
 					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
 				} else {
 					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
 				}
 				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
 						  "\nJZE R2, ";
-				if(stats + inlineStats + 1 < 0x0A) {
+				if(stats + inlineStats + 1 <= 0x0F) {
 					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
 				} else {
 					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
@@ -175,7 +177,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
 				insert = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
 						  "\nJZE R2, ";
-				if(stats + inlineStats + 1 < 0x0A) {
+				if(stats + inlineStats + 1 <= 0x0F) {
 					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
 				} else {
 					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
@@ -186,14 +188,14 @@ public class ZMMCodeGenerator implements CodeGenerator {
 			break;
 		case 'G':
 			if(c.getTokTwo().type == ZMMLexer.VALUE) {
-				if(new Integer(c.getTokTwo().text) < 0x0A) {
+				if(new Integer(c.getTokTwo().text) <= 0x0F) {
 					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
 				} else {
 					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
 				}
 				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
 						  "\nJZG R2, ";
-				if(stats + inlineStats + 1 < 0x0A) {
+				if(stats + inlineStats + 1 <= 0x0F) {
 					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
 				} else {
 					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
@@ -203,7 +205,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
 				insert = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
 						  "\nJZG R2, ";
-				if(stats + inlineStats + 1 < 0x0A) {
+				if(stats + inlineStats + 1 <= 0x0F) {
 					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
 				} else {
 					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
@@ -214,14 +216,14 @@ public class ZMMCodeGenerator implements CodeGenerator {
 			break;
 		case 'L':
 			if(c.getTokTwo().type == ZMMLexer.VALUE) {
-				if(new Integer(c.getTokTwo().text) < 0x0A) {
+				if(new Integer(c.getTokTwo().text) <= 0x0F) {
 					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
 				} else {
 					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
 				}
 				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
 						  "\nJZL R2, ";
-				if(stats + inlineStats + 1 < 0x0A) {
+				if(stats + inlineStats + 1 <= 0x0F) {
 					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
 				} else {
 					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
