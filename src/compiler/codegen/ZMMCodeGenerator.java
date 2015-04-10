@@ -108,62 +108,136 @@ public class ZMMCodeGenerator implements CodeGenerator {
 			int reg = fields.get(value);
 			fields.put(name.text, reg);
 			if(registers[reg] < 0x0A) {
-				output += "MOV R"+ reg + ", 0" + registers[reg] + "\n";
+				output += "MOV R"+ reg + ", 0" + Integer.toHexString(new Integer(registers[reg])) + "\n";
 			} else {
-				output += "MOV R"+ reg + ", " + registers[reg] + "\n";
+				output += "MOV R"+ reg + ", " + Integer.toHexString(new Integer(registers[reg])) + "\n";
 			}
 			return 4;
 		} else {
-			int val;
-			try {
-				val = Integer.parseInt(value.text);
-				fields.put(name.text, regPointer);
-				registers[regPointer] = val;
-				output += "MOV R" + regPointer + ", " + val + "\n";
-				regPointer++;
-				return 4;
-			} catch(NumberFormatException e) {
-				throw new Error("Variable not declared! variable: " + value.text);
+			if(regPointer == registers.length) {
+				throw new Error("No more register space!");
+			} else {
+				int val;
+				try {
+					val = Integer.parseInt(value.text);
+					fields.put(name.text, regPointer);
+					registers[regPointer] = val;
+					if(registers[regPointer] < 0x0A) {
+						output += "MOV R"+ regPointer + ", 0" + Integer.toHexString(new Integer(val)) + "\n";
+					} else {
+						output += "MOV R"+ regPointer + ", " + Integer.toHexString(new Integer(val)) + "\n";
+					}
+					regPointer++;
+					return 4;
+				} catch(NumberFormatException e) {
+					throw new Error("Variable not declared! variable: " + value.text);
+				}
 			}
 		}
 	}
 	
-	public int generateWhile(Token comp, Token comp2, char conditionType, int stats) {
-		switch(conditionType) {
+	public int generateWhile(Context c, int stats, int inlineStats) {
+		String before = output.substring(0, outputPointer.get(outputPointer.size() - 1));
+		String after = output.substring(outputPointer.get(outputPointer.size() - 1));
+		String insert = "";
+		String unconditionalJumpBack = "JZE R0, ";
+		if(inlineStats < 0x0F) {
+			unconditionalJumpBack += "0" + Integer.toHexString(new Integer(inlineStats)) + "\n";
+		} else {
+			unconditionalJumpBack += Integer.toHexString(new Integer(inlineStats)) + "\n";
+		}
+		String tokenOneRegister = Integer.toHexString(new Integer(fields.get(c.getTokOne().text)));
+		String tokenTwoRegister;
+		if(fields.get(c.getTokTwo().text) != null && fields.get(c.getTokTwo().text) < 0x0A) {
+			tokenTwoRegister = "0" + Integer.toHexString(new Integer(fields.get(c.getTokTwo().text)));
+		} else if(fields.get(c.getTokTwo().text) != null) {
+			tokenTwoRegister = Integer.toHexString(new Integer(fields.get(c.getTokTwo().text)));
+		} else {
+			tokenTwoRegister = null; //Should never happen
+		}
+		switch(c.getType()) {
 		case 'E':
-			if(comp2.type == ZMMLexer.VALUE) {
-				output += "MOV R1, " + comp2.text +
-						"\nSUB R2, R" + fields.get(comp) + ", R" + comp2.text + 
-						"\nJZE R2, " + stats + "\n";
+			if(c.getTokTwo().type == ZMMLexer.VALUE) {
+				if(new Integer(c.getTokTwo().text) < 0x0A) {
+					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
+				} else {
+					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
+				}
+				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
+						  "\nJZE R2, ";
+				if(stats + inlineStats + 1 < 0x0A) {
+					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
+				} else {
+					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
+				}
+				output = before + insert + after + unconditionalJumpBack;
+				return 13;
+			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
+				insert = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
+						  "\nJZE R2, ";
+				if(stats + inlineStats + 1 < 0x0A) {
+					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
+				} else {
+					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
+				}
+				output = before + insert + after + unconditionalJumpBack;
 				return 10;
-			} else if(comp2.type == ZMMLexer.NAME) {
-				output += "\nSUB R2, R" + fields.get(comp) + ", R" + fields.get(comp2) + 
-						  "\nJZE R2, " + stats + "\n";
-				return 7;
 			}
 			break;
 		case 'G':
-			if(comp2.type == ZMMLexer.VALUE) {
-				output += "MOV R1, " + comp2.text +
-						"\nSUB R2, R" + fields.get(comp) + ", R" + comp2.text + 
-						"\nJZG R2, " + stats + "\n";
+			if(c.getTokTwo().type == ZMMLexer.VALUE) {
+				if(new Integer(c.getTokTwo().text) < 0x0A) {
+					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
+				} else {
+					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
+				}
+				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
+						  "\nJZG R2, ";
+				if(stats + inlineStats + 1 < 0x0A) {
+					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
+				} else {
+					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
+				}
+				output = before + insert + after + unconditionalJumpBack;
+				return 13;
+			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
+				insert = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
+						  "\nJZG R2, ";
+				if(stats + inlineStats + 1 < 0x0A) {
+					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
+				} else {
+					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
+				}
+				output = before + insert + after + unconditionalJumpBack;
 				return 10;
-			} else if(comp2.type == ZMMLexer.NAME) {
-				output += "\nSUB R2, R" + fields.get(comp) + ", R" + fields.get(comp2) + 
-						  "\nJZG R2, " + stats + "\n";
-				return 7;
 			}
 			break;
 		case 'L':
-			if(comp2.type == ZMMLexer.VALUE) {
-				output += "MOV R1, " + comp2.text +
-						"\nSUB R2, R" + fields.get(comp) + ", R" + comp2.text + 
-						"\nJZL R2, " + stats + "\n";
+			if(c.getTokTwo().type == ZMMLexer.VALUE) {
+				if(new Integer(c.getTokTwo().text) < 0x0A) {
+					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
+				} else {
+					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
+				}
+				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
+						  "\nJZL R2, ";
+				if(stats + inlineStats + 1 < 0x0A) {
+					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
+				} else {
+					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
+				}
+				output = before + insert + after + unconditionalJumpBack;
+				return 13;
+			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
+				insert = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
+						  "\nJZL R2, ";
+				if(stats + inlineStats + 1 < 0x0A) {
+					insert += "0" + Integer.toHexString(new Integer(stats + inlineStats + 1));
+				} else {
+					insert += Integer.toHexString(new Integer(stats + inlineStats + 1));
+				}
+				output = before + insert + after + unconditionalJumpBack;
 				return 10;
-			} else if(comp2.type == ZMMLexer.NAME) {
-				output += "\nSUB R2, R" + fields.get(comp) + ", R" + fields.get(comp2) + 
-						  "\nJZL R2, " + stats + "\n";
-				return 7;
 			}
 			break;
 		}

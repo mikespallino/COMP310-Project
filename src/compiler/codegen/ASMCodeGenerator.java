@@ -211,10 +211,10 @@ public class ASMCodeGenerator implements CodeGenerator {
 					// so throw this exception.
 					throw new InvalidTokenException("Can't convert and invalid token into Machine Code!" + t);
 			}
-			if(memorylocation % 2 == 0) {
+			if(memorylocation % 2 == 0 && memorylocation % 16 != 0) {
 				output += " ";
 			}
-			if(memorylocation % 16 == 0) {
+			if(memorylocation != 0 && memorylocation % 16 == 0) {
 				output += "\n";
 				memorylocation = 0;
 			}

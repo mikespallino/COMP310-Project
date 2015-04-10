@@ -61,6 +61,6 @@ public abstract class Lexer {
 	}
 	
 	boolean isNumber() {
-		return (getC() >= '0' && getC() <= '9');
+		return ((getC() >= '0' && getC() <= '9') || ((getC() >= 'a' && getC() <= 'f') || (getC() >= 'A' && getC() <= 'F')));
 	}
 }

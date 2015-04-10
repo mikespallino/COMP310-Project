@@ -2,6 +2,7 @@ package compiler.parser;
 
 import java.util.List;
 
+import compiler.codegen.Context;
 import compiler.codegen.InvalidTokenException;
 import compiler.codegen.ZMMCodeGenerator;
 import compiler.lexer.Lexer;
@@ -311,30 +312,30 @@ public class ZMMParser extends Parser {
 	 * @throws MismatchedTokenException 
 	 * @author Mike
 	 */
-	public char comp() throws MismatchedTokenException {
+	public Context comp() throws MismatchedTokenException {
 		if(speculateEquality()) {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			Token t1 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.EQUALS);
+			Token t2 = match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			if(speculateSemi())
 				match(ZMMLexer.SEMI);
-			return 'E';
+			return new Context(t1, t2, 'E', count);
 		} else if (speculateValDif()) {
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			Token t = match(ZMMLexer.LESS, ZMMLexer.GREATER);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			Token t1 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			Token type = match(ZMMLexer.LESS, ZMMLexer.GREATER);
+			Token t2 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			if(speculateSemi())
 				match(ZMMLexer.SEMI);
-			if(t.text == "<") {
-				return 'L';
-			} else if(t.text == ">") {
-				return 'G';
+			if(type.text == "<") {
+				return new Context(t1, t2, 'L', count);
+			} else if(type.text == ">") {
+				return new Context(t1, t2, 'G', count);
 			}
 		} else {
 			throw new MismatchedTokenException("Expecting a comparison; Found " + lookToken(1));
 		}
-		return '-';
+		return null;
 	}
 	
 	/**
@@ -405,10 +406,7 @@ public class ZMMParser extends Parser {
 	public void whileS() throws MismatchedTokenException {
 		match(ZMMLexer.WHILE);
 		match(ZMMLexer.OPAREN);
-		char type = '-';
-		if(speculateComp()) {
-			type = comp();
-		}
+		Context c = comp();
 		count = 0;
 		match(ZMMLexer.CPAREN);
 		match(ZMMLexer.OBRACK);
@@ -416,7 +414,7 @@ public class ZMMParser extends Parser {
 		while(lookAhead(1) != ZMMLexer.CBRACK) {
 			stat();
 		}
-		//count += asmCodeGenerator.generateWhile(comp, comp2, type, count);
+		count += asmCodeGenerator.generateWhile(c, count, c.getCount());
 		asmCodeGenerator.release();
 		match(ZMMLexer.CBRACK);
 	}
