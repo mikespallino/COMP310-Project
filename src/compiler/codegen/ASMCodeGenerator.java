@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
  */
 public class ASMCodeGenerator implements CodeGenerator {
 
+	public static int BUNDLE_SIZE = 4;
 	private int memorylocation = 0;
 	private String output = "v2.0 raw\n";
 	/**
