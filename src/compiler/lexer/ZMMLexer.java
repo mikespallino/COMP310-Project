@@ -104,6 +104,27 @@ public class ZMMLexer extends Lexer {
 				t = new Token(OP, "/", this);
 				parsedTokens.add(t);
 				return t;
+				case '&':
+					consume();
+					t = new Token(OP, "&", this);
+					parsedTokens.add(t);
+					return t;
+				case '^':
+					consume();
+					t = new Token(OP, "^", this);
+					parsedTokens.add(t);
+					return t;
+				case '#':
+					consume();
+					t = new Token(OP, "#", this);
+					parsedTokens.add(t);
+					return t;
+
+				case '!':
+					consume();
+					t = new Token(OP, "!", this);
+					parsedTokens.add(t);
+					return t;
 			default:
 				if(isLetter()) {
 					return NAME();

@@ -2,9 +2,6 @@ int x = 6;
 x = x + 1;
 int y = 7;
 
-while(x < 8) [
-fdjlgs
+while (x < 8) [
+	x = x + y;
 ]
-
-MOV Rt, 08
-SUB 

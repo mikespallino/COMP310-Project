@@ -1,4 +1,5 @@
 package compiler.codegen;
+
 import compiler.lexer.Token;
 
 /**
@@ -11,11 +12,13 @@ public class Context
     private char type;
     private int count;
 
+    public Context() {
+    	this(null, null, '-', 0);
+    }
+    
     public Context(Token t1, Token t2, char type)
     {
-        this.t1 = t1;
-        this.t2 = t2;
-        this.type = type;
+    	this(t1, t2, type, 0);
     }
 
     public Context(Token t1, Token t2, char type, int count)
