@@ -64,6 +64,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "SUB R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "SUB R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "SUB R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 			case '*':
@@ -71,6 +73,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "MUL R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "MUL R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "MUL R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 			case '/':
@@ -78,6 +82,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "DIV R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "DIV R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "DIV R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 			case '&':
@@ -85,6 +91,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "AND R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "AND R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "AND R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 			case '^':
@@ -92,6 +100,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "OR R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "OR R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "OR R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 			case '#':
@@ -99,6 +109,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					output += "XNOR R" + r1 + ", R1, R" + r3 + "\n";
 				} else if(registers[1] == r3) {
 					output += "XNOR R" + r1 + ", R" + r2 + ", R1\n";
+				} else {
+					output += "XNOR R" + r1 + ", R" + r2 + ", R" + r3 + "\n";
 				}
 				break;
 		}
@@ -244,6 +256,10 @@ public class ZMMCodeGenerator implements CodeGenerator {
 			break;
 		}
 		return 0;
+	}
+	
+	public void generateIf(char type, int ifStatCount, int elseStatCount) {
+		
 	}
 
 	@Override

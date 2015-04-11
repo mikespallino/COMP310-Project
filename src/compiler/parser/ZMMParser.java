@@ -426,7 +426,7 @@ public class ZMMParser extends Parser {
      * @throws MismatchedTokenException
      * @author Zach
      */
-	public void ifS() throws MismatchedTokenException{
+	public void ifS() throws MismatchedTokenException {
         match(ZMMLexer.IF);
         match(ZMMLexer.OPAREN);
         if(speculateComp()) {
