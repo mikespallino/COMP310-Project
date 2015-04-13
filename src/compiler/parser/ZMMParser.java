@@ -80,6 +80,25 @@ public class ZMMParser extends Parser {
         release();
         return success;
 	}
+
+	private boolean speculateNotEqual(){
+		boolean success = true;
+		mark();
+		try{
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.op);
+			match(ZMMLexer.equals);
+			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+		}
+		catch(MismatchedTokenException e){
+			success = false;
+		}
+		release();
+		return success;
+
+	}
+
+
     /**
      * Speculates ifS
      * if try works success is returned as true
@@ -331,6 +350,13 @@ public class ZMMParser extends Parser {
 				return new Context(t1, t2, 'L', count);
 			} else if(type.text == ">") {
 				return new Context(t1, t2, 'G', count);
+			}
+			else if(speculateNotEqual()){
+				Token t1 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+				match(ZMMLexer.op);
+				match(ZMMLexer.equals);
+				Token t2 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+				return new Context(t1, t2, 'n', count);
 			}
 		} else {
 			throw new MismatchedTokenException("Expecting a comparison; Found " + lookToken(1));
