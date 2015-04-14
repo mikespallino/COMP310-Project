@@ -52,8 +52,6 @@ public class ZMMParser extends Parser {
 	public void stat() throws MismatchedTokenException {
 		if(speculateAssign()) {
 			//assign();
-		} else if(speculateComp()) {
-			//comp();
 		} else if(speculateWhileS()) {
 			//whileS();
 		}else if(speculateIfS()) {
@@ -63,31 +61,13 @@ public class ZMMParser extends Parser {
 		}
 	}
 
-    /**
-     * Speculates elseS
-     * if try works success is returned as true
-     * @return
-     * @author Zach
-     */
-	private boolean speculateElseS() {
-        boolean success = true;
-        mark();
-        try {
-            elseS();
-        } catch(MismatchedTokenException e) {
-            success = false;
-        }
-        release();
-        return success;
-	}
-
 	private boolean speculateNotEqual(){
 		boolean success = true;
 		mark();
 		try{
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.op);
-			match(ZMMLexer.equals);
+			match(ZMMLexer.OP);
+			match(ZMMLexer.EQUALS);
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 		}
 		catch(MismatchedTokenException e){
@@ -132,24 +112,6 @@ public class ZMMParser extends Parser {
 		}
 		//release();
 		return success;
-	}
-
-    /**
-     * Speculates comp
-     * if try works success is returned as true
-     * @return
-     * @author Zach
-     */
-	private boolean speculateComp() {
-		boolean success = true;
-        mark();
-        try {
-            comp();
-        } catch(MismatchedTokenException e) {
-            success = false;
-        }
-        //release();
-        return success;
 	}
 
     /**
@@ -328,6 +290,10 @@ public class ZMMParser extends Parser {
 	 * comp() is the comparison section of the grammar. It 
 	 * handles statements of equality and value comparisons
 	 * for less than or greater than.
+	 * 
+	 * When we generate this code we want to do exactly the
+	 * opposite of what the user wrote.
+	 * 
 	 * @throws MismatchedTokenException 
 	 * @author Mike
 	 */
@@ -339,7 +305,7 @@ public class ZMMParser extends Parser {
 			match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			if(speculateSemi())
 				match(ZMMLexer.SEMI);
-			return new Context(t1, t2, 'E', count);
+			return new Context(t1, t2, 'N', count);
 		} else if (speculateValDif()) {
 			Token t1 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
 			Token type = match(ZMMLexer.LESS, ZMMLexer.GREATER);
@@ -347,17 +313,16 @@ public class ZMMParser extends Parser {
 			if(speculateSemi())
 				match(ZMMLexer.SEMI);
 			if(type.text == "<") {
-				return new Context(t1, t2, 'L', count);
-			} else if(type.text == ">") {
 				return new Context(t1, t2, 'G', count);
+			} else if(type.text == ">") {
+				return new Context(t1, t2, 'L', count);
 			}
-			else if(speculateNotEqual()){
-				Token t1 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
-				match(ZMMLexer.op);
-				match(ZMMLexer.equals);
-				Token t2 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
-				return new Context(t1, t2, 'n', count);
-			}
+		} else if(speculateNotEqual()){
+			Token t1 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			match(ZMMLexer.OP);
+			match(ZMMLexer.EQUALS);
+			Token t2 = match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			return new Context(t1, t2, 'E', count);
 		} else {
 			throw new MismatchedTokenException("Expecting a comparison; Found " + lookToken(1));
 		}
@@ -433,14 +398,14 @@ public class ZMMParser extends Parser {
 		match(ZMMLexer.WHILE);
 		match(ZMMLexer.OPAREN);
 		Context c = comp();
-		count = 0;
+		int countStart = count;
 		match(ZMMLexer.CPAREN);
 		match(ZMMLexer.OBRACK);
 		asmCodeGenerator.mark();
 		while(lookAhead(1) != ZMMLexer.CBRACK) {
 			stat();
 		}
-		count += asmCodeGenerator.generateWhile(c, count, c.getCount());
+		count += asmCodeGenerator.generateWhile(c, countStart, c.getCount());
 		asmCodeGenerator.release();
 		match(ZMMLexer.CBRACK);
 	}
@@ -455,18 +420,21 @@ public class ZMMParser extends Parser {
 	public void ifS() throws MismatchedTokenException {
         match(ZMMLexer.IF);
         match(ZMMLexer.OPAREN);
-        if(speculateComp()) {
-        	comp();
-        }
+        Context c = comp();
         match(ZMMLexer.CPAREN);
         match(ZMMLexer.OBRACK);
+        asmCodeGenerator.mark();
+        int countStart = count;
         while(lookAhead(1) != ZMMLexer.CBRACK) {
             stat();
         }
+        int countStart2 = count;
         match(ZMMLexer.CBRACK);
-        if(speculateElseS()) {
-        	elseS();
-        }
+        asmCodeGenerator.mark();
+        elseS();
+        count += asmCodeGenerator.generateIf(c, countStart, c.getCount(), countStart2, count);
+        asmCodeGenerator.release();
+        asmCodeGenerator.release();
 	}
 
     /**
