@@ -134,7 +134,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 		if(fields.containsKey(name.text)) {
 			int originalRegister = fields.get(name.text);
 			if(fields.containsKey(value.text)) {
-				int reg = fields.get(value);
+				int reg = fields.get(value.text);
 				fields.put(name.text, reg);
 				if(registers[reg] <= 0x0F) {
 					output += "MOV R"+ originalRegister + ", 0" + Integer.toHexString(new Integer(registers[reg])) + "\n";
