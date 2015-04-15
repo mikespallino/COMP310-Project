@@ -11,7 +11,6 @@ import compiler.lexer.ZMMLexer;
 import compiler.parser.ASMBacktrackParser;
 import compiler.parser.MismatchedTokenException;
 import compiler.parser.ZMMParser;
-import compiler.preprocessor.Preprocessor;
 
 public class ZMMParserTest {
 
@@ -33,8 +32,6 @@ public class ZMMParserTest {
 			parser.stats();
 			String asm = parser.getCodeGenerator().getOutput();
 			System.out.println(asm +"\n");
-			Preprocessor pre = new Preprocessor(parser.getLookahead(), lexer);
-			parser.setLookahead(pre.process());
 			
 			ASMBacktrackParser asmParser = new ASMBacktrackParser(new ASMLexer(asm));
 			String output = asmParser.stats();

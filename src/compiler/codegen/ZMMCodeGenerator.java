@@ -231,8 +231,41 @@ public class ZMMCodeGenerator implements CodeGenerator {
 				} else {
 					tmp += Integer.toHexString(new Integer((stats + inlineStats  + inlineStats + 12)/4));
 				}
+				insert += tmp + "\nSUB R2, R" + tokenOneRegister + ", R1" + 
+						  		"\nJZE R2, ";
+				output = before + insert + after + unconditionalJumpBack;
+				return 12;
+			}
+			break;
+		case 'N':
+			if(c.getTokTwo().type == ZMMLexer.VALUE) {
+				if(new Integer(c.getTokTwo().text) <= 0x0F) {
+					insert = "\nMOV R1, 0" + Integer.toHexString(new Integer(c.getTokTwo().text));
+				} else {
+					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
+				}
 				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
-						  "\nJZE R2, ";
+						  "\nJZN R2, ";
+				String tmp = "";
+				if((stats + inlineStats  + inlineStats + 12)/4 <= 0x0F) {
+					tmp += "0" + Integer.toHexString(new Integer((stats + inlineStats  + inlineStats + 12)/4));
+				} else {
+					tmp += Integer.toHexString(new Integer((stats + inlineStats  + inlineStats + 12)/4));
+				}
+				insert += tmp + "\nJZE R2, " + tmp;
+				output = before + insert + after + unconditionalJumpBack;
+				return 20;
+			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
+				insert = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
+						  "\nJZN R2, ";
+				String tmp = "";
+				if((stats + inlineStats  + inlineStats + 12)/4 <= 0x0F) {
+					tmp += "0" + Integer.toHexString(new Integer((stats + inlineStats  + inlineStats + 12)/4));
+				} else {
+					tmp += Integer.toHexString(new Integer((stats + inlineStats  + inlineStats + 12)/4));
+				}
+				insert += tmp + "\nSUB R2, R" + tokenOneRegister + ", R1" + 
+						  		"\nJZE R2, ";
 				output = before + insert + after + unconditionalJumpBack;
 				return 12;
 			}
@@ -276,6 +309,8 @@ public class ZMMCodeGenerator implements CodeGenerator {
 				} else {
 					insert = "\nMOV R1, " + Integer.toHexString(new Integer(c.getTokTwo().text));
 				}
+				insert += "\nSUB R2, R" + tokenOneRegister + ", R1" +
+						  "\nJZL R2, ";
 				String tmp = "";
 				if((stats + inlineStats  + inlineStats + 12)/4 <= 0x0F) {
 					tmp += "0" + Integer.toHexString(new Integer((stats + inlineStats  + inlineStats + 12)/4));
@@ -342,7 +377,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
-				return 13;
+				return 16;
 			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
 				ifStatStart = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
 						  "\nJZE R2, ";
@@ -352,7 +387,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
-				return 10;
+				return 8;
 			}
 			break;
 		case 'N':
@@ -370,7 +405,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
-				return 13;
+				return 16;
 			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
 				ifStatStart = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
 						  "\nJZN R2, ";
@@ -380,7 +415,7 @@ public class ZMMCodeGenerator implements CodeGenerator {
 					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
-				return 10;
+				return 8;
 			}
 			break;
 		case 'L':
@@ -392,21 +427,25 @@ public class ZMMCodeGenerator implements CodeGenerator {
 				}
 				ifStatStart += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
 						  "\nJZL R2, ";
-				if((stats + ifStatCount + stats2 + 4) /4  <= 0x0F) {
-					ifStatStart += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+				String tmp = "";
+				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				} else {
-					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				}
+				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
 				return 13;
 			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
 				ifStatStart = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
 						  "\nJZL R2, ";
-				if((stats + ifStatCount + stats2 + 4) /4  <= 0x0F) {
-					ifStatStart += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+				String tmp = "";
+				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				} else {
-					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				}
+				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
 				return 10;
 			}
@@ -420,21 +459,25 @@ public class ZMMCodeGenerator implements CodeGenerator {
 				}
 				ifStatStart += "\nSUB R2, R" + tokenOneRegister + ", R1" + 
 						  "\nJZG R2, ";
-				if((stats + ifStatCount + stats2 + 4) /4  <= 0x0F) {
-					ifStatStart += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+				String tmp = "";
+				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				} else {
-					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				}
+				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
 				return 13;
 			} else if(c.getTokTwo().type == ZMMLexer.NAME) {
 				ifStatStart = "\nSUB R2, R" + tokenOneRegister + ", R" + tokenTwoRegister + 
 						  "\nJZG R2, ";
-				if((stats + ifStatCount + stats2 + 4) /4  <= 0x0F) {
-					ifStatStart += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+				String tmp = "";
+				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				} else {
-					ifStatStart += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
 				}
+				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
 				return 10;
 			}

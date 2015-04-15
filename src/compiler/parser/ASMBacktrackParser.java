@@ -1,12 +1,9 @@
 package compiler.parser;
 
-import java.util.ArrayList;
-
 import compiler.codegen.ASMCodeGenerator;
 import compiler.codegen.InvalidTokenException;
 import compiler.lexer.ASMLexer;
 import compiler.lexer.Lexer;
-import compiler.lexer.Token;
 
 /**
  * ASMBacktrackParser is an implementation of a backtracking parser 

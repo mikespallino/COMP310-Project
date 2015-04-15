@@ -13,7 +13,6 @@ import compiler.lexer.ZMMLexer;
 import compiler.parser.ASMBacktrackParser;
 import compiler.parser.MismatchedTokenException;
 import compiler.parser.ZMMParser;
-import compiler.preprocessor.Preprocessor;
 
 public class ZMMCompiler {
 
@@ -23,10 +22,9 @@ public class ZMMCompiler {
 			System.exit(-1);
 		} else {
 			String file = args[0];
-			String outputFile = args[1];
+			String outputFile =  args[1];
 			String bundle = args[2];
 
-			
 			Scanner scan;
 			String input = "";
 			try {
@@ -44,16 +42,15 @@ public class ZMMCompiler {
 				parser.stats();
 				String asm = parser.getCodeGenerator().getOutput();
 				System.out.println(asm + "\n");
-				Preprocessor pre = new Preprocessor(parser.getLookahead(),
-						lexer);
-				parser.setLookahead(pre.process());
 
 				ASMBacktrackParser asmParser = new ASMBacktrackParser(
 						new ASMLexer(asm));
 				String output = asmParser.stats();
 				try {
-					PrintWriter writer = new PrintWriter("res/outputFile", "UTF-8");
+					PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
 					writer.println(output);
+					writer.flush();
+					writer.close();
 				} catch (FileNotFoundException e) {
 					System.out.println("File could not be written, File not found exception.");
 					e.printStackTrace();
