@@ -2,7 +2,7 @@
 This project will entail creating a compiler for the assembly instruction set of the simple 16-bit cpu Professor Joey Lawrance gave us in COMP278.
 
 ##The General Idea
-We will first go about creating a backtracking parser and lexer for the grammar for assembly. We will then do a conversion to Machine Code (hexadecimal output of the code in a format that can be loaded into a Logisim RAM module) from there. Then we will create another parser and lexer for the actual DSL. Then we will build an AST and verify the syntax of input. Finally we will generate the Assembly instructions from the DSL and pass that back into the original parser and lexer for the assembly code.
+We will first go about creating a backtracking parser and lexer for the grammar for assembly. We will then do a conversion to Machine Code (hexadecimal output of the code in a format that can be loaded into a Logisim RAM module) from there. Then we will create another parser and lexer for the actual DSL. Rather than building up an AST, we decided to rely on the backtracking nature of the parser to then generate code. Finally we will generate the Assembly instructions from the DSL and pass that back into the original parser and lexer for the assembly code.
 
 ## The Grammar for Assembly
 	stats           : stat* EOF;
@@ -15,7 +15,7 @@ We will first go about creating a backtracking parser and lexer for the grammar 
 
 ## The Grammar for ZMM
 	stats				: stat* EOF;
-	stat				: assign | comp | while | for | if;
+	stat				: assign | while | for | if;
 	assign				: ((DATATYPE NAME EQUALS (NAME | VALUE)) | (DATATYPE NAME EQUALS (NAME | VALUE) OP (NAME | VALUE))) SEMI;
 	comp				: ((NAME | VALUE) (EQUALS EQUALS | LESS | GREATER | LESS EQUAL | GREATER LESS) (NAME | VALUE) SEMI) | ((NAME | VALUE) EQUALS EQUALS (NAME | VALUE));
 	while				: WHILE OPAREN comp CPAREN OBRACK (stat)* CBRACK;
