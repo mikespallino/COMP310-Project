@@ -429,9 +429,9 @@ public class ZMMCodeGenerator implements CodeGenerator {
 						  "\nJZL R2, ";
 				String tmp = "";
 				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
-					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				} else {
-					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
@@ -441,9 +441,9 @@ public class ZMMCodeGenerator implements CodeGenerator {
 						  "\nJZL R2, ";
 				String tmp = "";
 				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
-					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				} else {
-					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
@@ -461,9 +461,9 @@ public class ZMMCodeGenerator implements CodeGenerator {
 						  "\nJZG R2, ";
 				String tmp = "";
 				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
-					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				} else {
-					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;
@@ -473,9 +473,9 @@ public class ZMMCodeGenerator implements CodeGenerator {
 						  "\nJZG R2, ";
 				String tmp = "";
 				if((stats + ifStatCount + stats2 + 8) /4  <= 0x0F) {
-					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += "0" + Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				} else {
-					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 8) /4));
+					tmp += Integer.toHexString(new Integer((stats + ifStatCount + stats2 + 4) /4));
 				}
 				ifStatStart += tmp + "\nJZE R2, " + tmp;
 				output = start + ifStatStart + middle + "\n" + unconditionalJumpOver + end;

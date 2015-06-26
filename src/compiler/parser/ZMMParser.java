@@ -2,6 +2,7 @@ package compiler.parser;
 
 import java.util.List;
 
+import compiler.ast.AST;
 import compiler.codegen.Context;
 import compiler.codegen.InvalidTokenException;
 import compiler.codegen.ZMMCodeGenerator;
@@ -20,6 +21,8 @@ import compiler.lexer.ZMMLexer;
 public class ZMMParser extends Parser {
 
 	private ZMMCodeGenerator asmCodeGenerator;
+	private AST.Program programNode;
+	private AST.Visit visitor = new AST.Visit();
 	private int count;
 	
 	public ZMMParser(Lexer input) {
@@ -32,13 +35,15 @@ public class ZMMParser extends Parser {
 	 * It matches statements until the end of file.
 	 * @return a list of all the parsed tokens
 	 * @throws MismatchedTokenException
-	 * @author Mike
+	 * @author Mike	
 	 */
 	public List<Token> stats() throws MismatchedTokenException {
+		programNode = new AST.Program();
 		while(lookAhead(1) != ZMMLexer.EOF_TYPE) {
 			stat();
 		}
 		match(ZMMLexer.EOF_TYPE);
+		visitor.visit(programNode);
 		return lookahead;
 	}
 	
@@ -142,10 +147,11 @@ public class ZMMParser extends Parser {
 	public void assign() throws MismatchedTokenException {
 		if(speculateRegularAssign()) {
 			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
+			String id = match(ZMMLexer.NAME).text;
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			String value = match(ZMMLexer.NAME, ZMMLexer.VALUE).text;
 			match(ZMMLexer.SEMI);
+			programNode.addChild(new AST.Decl(new AST.Var(id, value), new AST.Var(value,value)));
 		} else if(speculateVarAssign()) {
 			match(ZMMLexer.NAME);
 			match(ZMMLexer.EQUALS);
