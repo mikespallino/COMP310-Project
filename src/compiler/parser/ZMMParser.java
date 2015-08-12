@@ -1,5 +1,6 @@
 package compiler.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import compiler.ast.AST;
@@ -145,35 +146,55 @@ public class ZMMParser extends Parser {
 	 * @author Mike
 	 */
 	public void assign() throws MismatchedTokenException {
+		String varID = null;
+		ArrayList<Token> values = new ArrayList<>();
 		if(speculateRegularAssign()) {
 			match(ZMMLexer.INT);
-			String id = match(ZMMLexer.NAME).text;
+			varID = match(ZMMLexer.NAME).text;
 			match(ZMMLexer.EQUALS);
-			String value = match(ZMMLexer.NAME, ZMMLexer.VALUE).text;
+			values.add(match(ZMMLexer.NAME, ZMMLexer.VALUE));
 			match(ZMMLexer.SEMI);
-			programNode.addChild(new AST.Decl(new AST.Var(id, value), new AST.Var(value,value)));
 		} else if(speculateVarAssign()) {
-			match(ZMMLexer.NAME);
+			varID = match(ZMMLexer.NAME).text;
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			values.add(match(ZMMLexer.NAME, ZMMLexer.VALUE));
 			match(ZMMLexer.SEMI);
 		} else if(speculateOperatorAssign()) {
 			match(ZMMLexer.INT);
-			match(ZMMLexer.NAME);
+			varID = match(ZMMLexer.NAME).text;
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.OP);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			values.add(match(ZMMLexer.NAME, ZMMLexer.VALUE));
+			values.add(match(ZMMLexer.OP));
+			values.add(match(ZMMLexer.NAME, ZMMLexer.VALUE));
 			match(ZMMLexer.SEMI);
 		} else if(speculateVarOperatorAssign()) {
-			match(ZMMLexer.NAME);
+			varID = match(ZMMLexer.NAME).text;
 			match(ZMMLexer.EQUALS);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
-			match(ZMMLexer.OP);
-			match(ZMMLexer.NAME, ZMMLexer.VALUE);
+			values.add(match(ZMMLexer.NAME, ZMMLexer.VALUE));
+			values.add(match(ZMMLexer.OP));
+			values.add(match(ZMMLexer.NAME, ZMMLexer.VALUE));
 			match(ZMMLexer.SEMI);
 		} else {
 			throw new MismatchedTokenException("Expecting an assignment; Found " + lookToken(1));
+		}
+		if (values.size() == 1) {
+			if(values.get(0).type == ZMMLexer.NAME) {
+				programNode.addChild(new AST.Decl(new AST.Variable(varID, new AST.Expr(new AST.Variable(values.get(0).text)))));
+			} else if (values.get(0).type == ZMMLexer.VALUE) {
+				programNode.addChild(new AST.Decl(new AST.Variable(varID, new AST.Expr(new AST.Value(values.get(0).text)))));
+			}
+		} else {
+			ArrayList<AST.Node> nodes = new ArrayList<>();
+			for(Token t: values) {
+				if (t.type == ZMMLexer.NAME) {
+					nodes.add(new AST.Variable(t.text));
+				} else if(t.type == ZMMLexer.VALUE) {
+					nodes.add(new AST.Value(t.text));
+				} else if(t.type == ZMMLexer.OP) {
+					nodes.add(new AST.Operand(t.text));
+				}
+			}
+			programNode.addChild(new AST.Decl(new AST.Variable(varID, new AST.Expr(new AST.Op(nodes, 1)))));
 		}
 	}
 	

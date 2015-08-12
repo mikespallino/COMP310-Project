@@ -2,6 +2,9 @@ int fact = 5;
 int loc = 5;
 
 while(loc > 1) [
-	loc = loc - 1;
-	fact = fact * loc;
+	if(loc == 2) [
+		loc = loc + 2;
+	] else [
+		loc = loc + 3;
+	]
 ]
